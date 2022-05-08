@@ -27,7 +27,7 @@ INFO:     Application startup complete.
 
 ## Notes
 
-**Use the folder query-understanding as a root folder**, 
+**Use the query-understanding folder as a root folder**, 
 So if you want to try some nlp tools like spell_correction.py 
 run like this:
 ```bash
