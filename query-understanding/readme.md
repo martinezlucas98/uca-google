@@ -23,3 +23,14 @@ INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 
 ```
+
+
+## Notes
+
+**Use the folder query-understanding as a root folder**, 
+So if you want to try some nlp tools like spell_correction.py 
+run like this:
+```bash
+$ python3 ./nlp_tools/spell_correction/spell_correction.py
+
+  
