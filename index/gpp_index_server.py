@@ -181,9 +181,10 @@ if __name__ == "__main__":
 ''' # Requests example (pip install requests)
 import requests
 
-r = requests.get('http://localhost:8080/subs?q=query')
+r = requests.get('http://localhost:8080/st?q=query')
 if r.status_code == 200:
     index = r.json()
+    print(type(index))
     print(index)
     print()
     for token in list(index.keys()):
