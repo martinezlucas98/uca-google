@@ -4,7 +4,7 @@ import pickle
 
 host_name = "localhost"
 server_port = 8080
-index_filename = "index/test_indices/small.pickle"
+index_filename = "index/test_indices/large.pickle"
 
 class IndexServer(BaseHTTPRequestHandler):
     def do_GET(self):
