@@ -12,6 +12,7 @@ def read_root():
 ## Soporta parametros como "/expand_query?q=hola%20Google"
 @app.get("/expand_query")
 def expand_query( q: Optional[str] = None):
+    # normalize_sentence = normalize(q)
     return {"expand query": {'type1': q}}
 
 
