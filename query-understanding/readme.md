@@ -11,7 +11,7 @@ And then install the development dependencies:
 ```bash
 $ pip install -r requirements.txt
 ```
-
+<br></br>
 ## Run it
 ```bash
 $ uvicorn main:app --reload
@@ -23,7 +23,7 @@ INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 
 ```
-
+<br></br>
 ## Notes
 
 **Use the query-understanding folder as a root folder**, 
@@ -32,7 +32,7 @@ run like this:
 ```bash
 $ python3 ./nlp_tools/spell_correction/spell_correction.py
 ```
-  
+<br></br>
 ## Unit Tests
 
 To run all unit test in ./test/qu_test.py
