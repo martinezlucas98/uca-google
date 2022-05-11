@@ -1,6 +1,6 @@
 import unittest
 from text_normalization import normalize_accents
-
+from nlp_tools.tokenization.tokenizer import tokenizer
 
 
 class QueryUnderstandingTest(unittest.TestCase):
@@ -9,6 +9,21 @@ class QueryUnderstandingTest(unittest.TestCase):
         self.assertEqual(normalize_accents('Enseñó'), 'Enseno')
         
         # Agregar para acentos nasales 
+
+    def test_tokenizer(self):
+        self.assertEqual(
+            tokenizer('Horarios de clases de economía.'),
+            ['Horarios', 'de', 'clases', 'de', 'economía', '.' ]
+        )
+        self.assertEqual(
+            tokenizer('¡Hola!'),
+            ['¡', 'Hola', '!']
+        )
+
+        self.assertEqual(
+            tokenizer("me alegro, que tal todo?"),
+            ['me', 'alegro', ',', 'que', 'tal', 'todo', '?' ]
+        )
         
 
 if __name__ == '__main__':
