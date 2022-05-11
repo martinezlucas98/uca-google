@@ -24,7 +24,6 @@ INFO:     Application startup complete.
 
 ```
 
-
 ## Notes
 
 **Use the query-understanding folder as a root folder**, 
@@ -32,5 +31,17 @@ So if you want to try some nlp tools like spell_correction.py
 run like this:
 ```bash
 $ python3 ./nlp_tools/spell_correction/spell_correction.py
-
+```
   
+## Unit Tests
+
+To run all unit test in ./test/qu_test.py
+```bash
+python -m unittest ./test/qu_test.py
+```
+
+To run only one method of the class QueryUnderstandingTest in ./test/qu_test.py
+```bash
+python -m unittest test.qu_test.QueryUnderstandingTest.<test_method>
+```
+

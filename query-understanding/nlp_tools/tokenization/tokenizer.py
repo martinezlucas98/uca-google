@@ -16,8 +16,8 @@ def tokenizer(sentence: str)-> list:
     """
     nlp = spacy.load('es_core_news_sm')
     doc = nlp(sentence)
-    print(doc.text)
-    print([(w.text, w.pos_) for w in doc])
+    tokenized = [w.text for w in doc]
+    return tokenized
 
 
 if __name__ == '__main__':
