@@ -37,7 +37,7 @@ $ python3 ./nlp_tools/spell_correction/spell_correction.py
 
 To run all unit test in ./test/qu_test.py
 ```bash
-python -m unittest ./test/qu_test.py
+python -m unittest test.qu_test
 ```
 
 To run only one method of the class QueryUnderstandingTest in ./test/qu_test.py

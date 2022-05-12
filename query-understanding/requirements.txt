@@ -9,7 +9,6 @@ contextualSpellCheck==0.4.1
 cymem==2.0.6
 editdistance==0.5.3
 es-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/es_core_news_sm-3.3.0/es_core_news_sm-3.3.0-py3-none-any.whl
-es-dep-news-trf @ https://github.com/explosion/spacy-models/releases/download/es_dep_news_trf-3.3.0/es_dep_news_trf-3.3.0-py3-none-any.whl
 fastapi==0.76.0
 filelock==3.6.0
 h11==0.13.0
@@ -53,7 +52,6 @@ typing_extensions==4.2.0
 Unidecode==1.3.4
 urllib3==1.26.9
 uvicorn==0.17.6
-uvloop==0.16.0
 wasabi==0.9.1
 watchgod==0.8.2
 websockets==10.3
