@@ -1,6 +1,7 @@
 from typing import Optional
 
 from fastapi import FastAPI
+from text_normalization import text_normalization
 
 app = FastAPI()
 
@@ -12,7 +13,7 @@ def read_root():
 ## Soporta parametros como "/expand_query?q=hola%20Google"
 @app.get("/expand_query")
 def expand_query( q: Optional[str] = None):
-    # normalize_sentence = normalize(q)
+    tokens = text_normalization(sentence=q)
     return {"expand query": {'type1': q}}
 
 
