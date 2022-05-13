@@ -7,6 +7,16 @@ Go to  query understanding folder
 $ cd query-understanding
 ```
 
+Create a virtual environment 'env'
+```bash
+$ python -m venv env
+```
+
+Activate virtual environment
+```bash
+$ source ./env/bin/activate
+```
+
 And then install the development dependencies:
 ```bash
 $ pip install -r requirements.txt
