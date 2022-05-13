@@ -22,9 +22,6 @@ tokenizer: nltk.word_tokenize(word_data)
 -->
 
 # Index
-## Requirements:
-- requests (optional for testing)
-
 ## Running index server
 From the project root:
 ```
