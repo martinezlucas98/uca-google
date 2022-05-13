@@ -10,6 +10,11 @@ server_port = 8080
 index_filename = "index/test_indices/large.pickle"
 
 class IndexServer(BaseHTTPRequestHandler):
+    def log_message(self, format: str, *args):
+        global quiet
+        if not quiet:
+            return super().log_message(format, *args)
+    
     def do_GET(self):
         pathstring, nil, paramstring = self.path.rstrip("/").partition('?')
         
@@ -168,8 +173,10 @@ class IndexServer(BaseHTTPRequestHandler):
         except ValueError:
             return None
 
-def start_server(index_fn: str = None):
+def start_server(index_fn: str = None, be_quiet: bool = False):
     global index_filename
+    global quiet 
+    quiet = be_quiet
     if index_fn is None:
         print(f"Test index '{index_filename}' used")
     else:
@@ -177,19 +184,21 @@ def start_server(index_fn: str = None):
         print(f"Index '{index_fn}' used")
     
     webServer = HTTPServer((host_name, server_port), IndexServer)
-    print("Server started http://%s:%s" % (host_name, server_port))
-    return webServer
-
-def stop_server(*args):
-    webServer.server_close()
-    print("Server stopped.")
-    exit()
-
-if __name__ == "__main__":
-    webServer = start_server()
+    
+    # Terminate process with SIGINT and SIGTERM
+    def stop_server(*args):
+        webServer.server_close()
+        print("Server stopped.")
+        exit(0)
     signal(SIGTERM, stop_server)
+    
+    print("Server started http://%s:%s" % (host_name, server_port))
     print("PID: {}".format(os.getpid()))
     try:
         webServer.serve_forever()
     except KeyboardInterrupt: # SIGINT
         stop_server()
+
+if __name__ == "__main__":
+    start_server()
+    
