@@ -3,6 +3,7 @@ import json
 import os
 import pickle
 from signal import SIGTERM, signal
+import sys
 
 # Settings
 host_name = "localhost"
@@ -183,6 +184,12 @@ def start_server(index_fn: str = None, be_quiet: bool = False):
         index_filename = index_fn
         print(f"Index '{index_fn}' used")
     
+    try:
+        with open(index_filename, 'rb') as fd:
+            pass
+    except FileNotFoundError:
+        print(f"Index file at {index_filename} not found.\nAborted", file=sys.stderr)
+        exit(1)
     webServer = HTTPServer((host_name, server_port), IndexServer)
     
     # Terminate process with SIGINT and SIGTERM
