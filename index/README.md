@@ -1,3 +1,26 @@
+<!--
+## TODO
+- [ ] Unit tests
+Indexes:
+    URLs to pages needed
+- [ ] Puctuation stripped
+- [ ] Punctuation included
+- [ ] Multiple words (?)
+- [ ] URL to title and meta tags/descriptions
+Updates:
+    Calculate a hash of a page's content when indexing, for updates check hashes to see if it's worth
+    going through and reindexing the page.
+Page rank:
+    Calculate ranking based on backlinks, counts, etc
+    Retrieval date
+
+## Notes
+string punctuation: word_data.translate(word_data.maketrans('', '', string.punctuation + '…°'))
+strip accent marks: unidecode.unidecode(word_data)
+tokenizer: nltk.word_tokenize(word_data)
+    BTW if markov chains are used, tokenize first since removing punctuation will cause empty strings, better for training 
+-->
+
 # Index
 ## Requirements:
 - requests (optional for testing)
@@ -97,10 +120,3 @@ querying:
 
 ## Test data
 Test indices exist in the test_indices/ directory, large (~113K words with <15 pages each) is used by default. Other sizes are medium (~66K words), small (~10K words), and tiny (100 words)
-
-<!--
-## TODO
-- [ ] Unit tests
-Indexes:
-- [ ] Multiple words (?)
--->

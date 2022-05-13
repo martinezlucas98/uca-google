@@ -1,7 +1,10 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
+import os
 import pickle
+from signal import SIGTERM, signal
 
+# Settings
 host_name = "localhost"
 server_port = 8080
 index_filename = "index/test_indices/large.pickle"
@@ -165,30 +168,28 @@ class IndexServer(BaseHTTPRequestHandler):
         except ValueError:
             return None
 
-if __name__ == "__main__":
+def start_server(index_fn: str = None):
+    global index_filename
+    if index_fn is None:
+        print(f"Test index '{index_filename}' used")
+    else:
+        index_filename = index_fn
+        print(f"Index '{index_fn}' used")
+    
     webServer = HTTPServer((host_name, server_port), IndexServer)
     print("Server started http://%s:%s" % (host_name, server_port))
+    return webServer
 
-    try:
-        webServer.serve_forever()
-    except KeyboardInterrupt:
-        pass
-
+def stop_server(*args):
     webServer.server_close()
     print("Server stopped.")
+    exit()
 
-
-''' # Requests example (pip install requests)
-import requests
-
-r = requests.get('http://localhost:8080/st?q=query')
-if r.status_code == 200:
-    index = r.json()
-    print(type(index))
-    print(index)
-    print()
-    for token in list(index.keys()):
-        print(token + ':')
-        for item in index[token]:
-            print("    {}: {}".format(item['url'], item['count']))
-'''
+if __name__ == "__main__":
+    webServer = start_server()
+    signal(SIGTERM, stop_server)
+    print("PID: {}".format(os.getpid()))
+    try:
+        webServer.serve_forever()
+    except KeyboardInterrupt: # SIGINT
+        stop_server()
