@@ -31,6 +31,17 @@ Server started http://localhost:8080
 ```
 Keyboard interrupt to stop server.
 
+To run the server in the background:
+```
+$ nohup python index/gpp_index_server.py &
+[1] 21372
+nohup: ignoring input and appending output to 'nohup.out'
+```
+And to terminate (PID will vary):
+```
+$ kill 21372
+```
+
 ## Querying the index
 To make requests, use HTTP GET requests. Valid queries return JSON, invalid or help queries return HTML.
 ### Help
@@ -114,6 +125,8 @@ querying:
 >>>
 
 ```
+## Unittest
+Launch the index server on localhost:8080 with a non-empty index to run unit tests.
 
 ## Test data
 Test indices exist in the test_indices/ directory, large (~113K words with <15 pages each) is used by default. Other sizes are medium (~66K words), small (~10K words), and tiny (100 words)
