@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from typing import Optional
+from search import main
 
 app = FastAPI()
 
@@ -12,23 +13,5 @@ def search(q: Optional[str] = None):
     """
         Devuelve los datos de busqueda por relevancia.
     """
-    #data = get_
-    data = {
-        "status": "success",
-        "time": 0.8,
-        "results": [
-            {
-                "title": "Algun titulo del html",
-                "url": 'https://name.com'
-            },
-            {
-                "title": "Algun titulo del html",
-                "url": 'https://www.name2.com'
-            },
-            {
-            "title": "Algun titulo del html",
-                "url": 'https://www.nameN.com'
-            }
-        ]           
-    }
+    data = main(str(q))
     return data
