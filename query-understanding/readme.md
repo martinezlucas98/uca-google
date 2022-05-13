@@ -21,6 +21,13 @@ And then install the development dependencies:
 ```bash
 $ pip install -r requirements.txt
 ```
+You must also install Hunspell:
+```
+sudo apt-get update
+sudo apt-get install python-dev 
+sudo apt-get install libhunspell-dev
+sudo pip install hunspell
+```
 <br></br>
 ## Run it
 ```bash
