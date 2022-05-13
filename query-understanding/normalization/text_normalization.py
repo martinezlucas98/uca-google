@@ -4,6 +4,7 @@ nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 import hunspell
+import snowballstemmer
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 
 # Preprocesamiento de datos
@@ -26,17 +27,18 @@ def tokenization(input_text):
 
 # Stemming del texto no estructurado, utilizando un diccionario de palabras
 def stemming(input_text):
-    dic = hunspell.HunSpell("es_ANY.dic", "es_ANY.aff")
-    stemmer = PorterStemmer()
-    #input_text = nltk.word_tokenize(input_text)
-    words_stemm = []
-    for word in input_text:
-        w_stem = stemmer.stem(word)
-        if dic.spell(w_stem):               # Si la palabra con stemming se encuentra en el dic
-            words_stemm.append(w_stem)
-        else:
-            words_stemm.append(word)        # Si no se encuentra, se agrega la palabra sin stemm
-    return words_stemm
+    # dic = hunspell.HunSpell("es_ANY.dic", "es_ANY.aff")
+    # stemmer = PorterStemmer()
+    # #input_text = nltk.word_tokenize(input_text)
+    # words_stemm = []
+    # for word in input_text:
+    #     w_stem = stemmer.stem(word)
+    #     if dic.spell(w_stem):               # Si la palabra con stemming se encuentra en el dic
+    #         words_stemm.append(w_stem)
+    #     else:
+    #         words_stemm.append(word)        # Si no se encuentra, se agrega la palabra sin stemm
+    stemmer = snowballstemmer.stemmer('spanish')
+    return stemmer.stemWords(input_text)
 
 def lemmatization(input_text):
     lemmatizer = WordNetLemmatizer()
