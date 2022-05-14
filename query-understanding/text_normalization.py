@@ -1,11 +1,18 @@
+from distutils import core
+from os import remove
 import re
 import nltk
 nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
-import hunspell
+
 import snowballstemmer
 from nltk.stem import PorterStemmer, WordNetLemmatizer
+import sys
+
+from nlp_tools.spell_correction import spell_correction
+from nlp_tools.stopwords_filter import remove_stopwords
+from nlp_tools.lemmatization import lemmatizer
 
 # Preprocesamiento de datos
 '''
@@ -16,7 +23,7 @@ from nltk.stem import PorterStemmer, WordNetLemmatizer
 '''
 
 
-# Limpieza del texto no estructurado
+# Limpieza del texto no estructurado (remove  '.', ',' '?', '!')
 def cleaning(input_text):
     return re.sub(r'[^\w\s]','',input_text)
 
@@ -52,11 +59,19 @@ def lemmatization(input_text):
 def normalize(input_text):
     #limpiamos
     clean = cleaning(input_text)
+
     #tokenizamos
     tokenize = tokenization(clean)
+    # Corregimos typos
+    tokenize = [spell_correction.correction(word=token) for token in tokenize]
+    # remove stopwords( 'de', 'la', 'del')
+    tokenize = remove_stopwords(tokenize)
     #stemming
     stem = stemming(tokenize)
     #lemmatization
-    lem = lemmatization(tokenize)
+    # lem = lemmatization(tokenize)
+    lem = lemmatizer(tokenize)
     return stem,lem
-print(normalize('!!#$%^tesis del 2019'))
+
+if __name__ == "__main__":
+    print(normalize('!!#$%^tesiss del 2019.'))

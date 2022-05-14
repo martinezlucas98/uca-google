@@ -22,4 +22,4 @@ def lemmatizer(words: list)-> list:
 
 
 if __name__ == '__main__':
-    print(lemmatizer(['haciendo','tarea'] ))
+    print(lemmatizer(['haciendo','tarea', 'hablamos'] ))
