@@ -35,6 +35,7 @@ sacremoses==0.0.53
 six==1.16.0
 smart-open==5.2.1
 sniffio==1.2.0
+snowballstemmer==2.2.0
 spacy==3.3.0
 spacy-alignments==0.8.5
 spacy-legacy==3.0.9
@@ -42,6 +43,7 @@ spacy-loggers==1.0.2
 spacy-transformers==1.1.5
 srsly==2.4.3
 starlette==0.18.0
+textblob==0.17.1
 thinc==8.0.15
 tokenizers==0.12.1
 torch==1.11.0
