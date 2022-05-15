@@ -1,5 +1,4 @@
 import Head from 'next/head'
-
 import SearchBar from '../components/SearchBar/SearchBar'
 import styles from '../styles/Home.module.css'
 import UcaLogo from '../components/UcaLogo/UcaLogo'
