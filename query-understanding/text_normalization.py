@@ -63,15 +63,15 @@ def normalize(input_text):
     #tokenizamos
     tokenize = tokenization(clean)
     # Corregimos typos
-    tokenize = [spell_correction.correction(word=token) for token in tokenize]
+    spell_check_sentence = [spell_correction.correction(word=token) for token in tokenize]
     # remove stopwords( 'de', 'la', 'del')
-    tokenize = remove_stopwords(tokenize)
+    tokenize = remove_stopwords(spell_check_sentence)
     #stemming
     stem = stemming(tokenize)
     #lemmatization
     # lem = lemmatization(tokenize)
     lem = lemmatizer(tokenize)
-    return stem,lem
+    return stem,lem, (' ').join(spell_check_sentence)
 
 if __name__ == "__main__":
     print(normalize('!!#$%^tesiss del 2019.'))
