@@ -17,23 +17,21 @@ def page_count(page):
 class GPP_Index:
     '''Index object with an actual dictionary as the centerpiece and additional methods for building it.
     
-    The dump() method will create a pickle file with the dictionary, the index itself, which will be used
+    The dump() method will dup the 
+    
+    The dump_index() method will create a pickle file with the dictionary, the index itself, which will be used
     for searching and permanent storage of the index.'''
     
-    def __init__(self, pickled_index: str = None, pickled_urls: str = None):
-        if pickled_index is None:
-            self.index = dict()
-            self.indexed_urls = dict() # format = {'https://example.com': 'hash'}
-        else:
-            with open(pickled_index, 'rb') as file:
-                self.index = pickle.load(file)
-                
-            # List of urls indexed makes it possible to tell if updating or indexing for the first time
-            if pickled_urls is not None:
-                with open(pickled_urls, 'rb') as file:
-                    self.indexed_urls = pickle.load(file)
-            else: # building this list cannot be done without the hashes of the scraped content
-                raise "List of urls and it's content hashes not present, cannot load the index"                
+    def __init__(self, pickled_gpp_index: str = None):
+        self.index = dict()
+        self.indexed_urls = dict() # format = {'https://example.com': 'hash'}
+        
+        # Load from pickled file
+        if pickled_gpp_index is not None:
+            with open(pickled_gpp_index, 'rb') as file:
+                instance = pickle.load(file)
+            for attr, value in instance.__dict__.items():
+                self.__dict__[attr] = value
     
     def add_entry(self, word: str, url: str, count: int):
         '''Adds a word's entry with the url of and appearance count in a page.'''
@@ -64,15 +62,19 @@ class GPP_Index:
         '''Removes a word from the index, deleting all page entries for it.'''
         self.index.pop(word)
     
-    def dump(self, index_filename: str = 'index.pickle', urls_filename: str = 'urls.pickle'):
+    def dump(self, filename: str = 'gpp_index.pickle'):
+        '''Dumps the obj so it can be updated later.'''
+        self.sort()
+        with open(filename, 'wb') as file:
+            pickle.dump(self, file)
+    
+    def dump_index(self, index_filename: str = 'index.pickle'):
         '''Dumps self.index into a pickled file. Sorts before dumping.
         
-        Unpickling will result in a dict, not an Index object.'''
+        Unpickling will result in a dict, not a GPP_Index object.'''
         self.sort()
         with open(index_filename, 'wb') as file:
             pickle.dump(self.index, file)
-        with open(urls_filename, 'wb') as file:
-            pickle.dump(self.indexed_urls, file)
 
     def sort(self):
         '''Sort pages associated with words by count, and words themselves alphabetically'''
@@ -138,5 +140,6 @@ class GPP_Index:
     
 if __name__ == '__main__':
     # Examples
-    pass
-    # index creation example, too tired rn
+    test_index = GPP_Index()
+    test_index.index['word'] = [{'url':'test.com', 'count':42}]
+    test_index.dump('test_index.pickle')
