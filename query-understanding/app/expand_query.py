@@ -1,6 +1,6 @@
-from text_normalization import  normalize
-from nlp_tools.named_entity import get_entity
-from nlp_tools.part_of_speech import get_part_of_speech
+from app.text_normalization import  normalize
+from app.nlp_tools.named_entity import get_entity
+from app.nlp_tools.part_of_speech import get_part_of_speech
 
 
 def expand_query(sentence:str) -> dict : 

@@ -1,9 +1,9 @@
 import unittest
 
-from nlp_tools.tokenizer import tokenizer
-from nlp_tools.stopwords_filter import remove_stopwords
-from nlp_tools.lemmatization import lemmatizer
-from text_normalization import stemming
+from app.nlp_tools.tokenizer import tokenizer
+from app.nlp_tools.stopwords_filter import remove_stopwords
+from app.nlp_tools.lemmatization import lemmatizer
+from app.text_normalization import stemming
 
 class QueryUnderstandingTest(unittest.TestCase):
     # def test_normalize_accents(self):

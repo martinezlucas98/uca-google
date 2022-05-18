@@ -18,7 +18,7 @@ import os
 
 
 def load_spanish_model() -> Counter:
-    with open('nlp_tools/spell_correction/spanish_model_WORDS_pkl', 'rb') as f:
+    with open('app/nlp_tools/spell_correction/spanish_model_WORDS_pkl', 'rb') as f:
         words_obj = pickle.load(f)
     
     return words_obj
@@ -26,11 +26,11 @@ def load_spanish_model() -> Counter:
 def create_and_save_spanish_model() -> Counter:
     # Save the training data file (json) in a dict variable
     training_data_dict = {}
-    with open("dataset/training_data_spanish.json", "r") as json_file:
+    with open("app/dataset/training_data_spanish.json", "r") as json_file:
         training_data_dict = json.load(json_file)
 
     words_obj = Counter(training_data_dict) # aca cambie
-    with open('nlp_tools/spell_correction/spanish_model_WORDS_pkl', 'wb') as f:
+    with open('app/nlp_tools/spell_correction/spanish_model_WORDS_pkl', 'wb') as f:
         pickle.dump(words_obj, f)
 
     return words_obj # is a type of COUNTER
@@ -41,7 +41,7 @@ WORDS = None
 # THEN  load the model 
 # ELSE create the model, save it in disk and return.
 # Both function return a collection.Counter Object
-if os.path.exists('nlp_tools/spell_correction/spanish_model_WORDS_pkl'):
+if os.path.exists('app/nlp_tools/spell_correction/spanish_model_WORDS_pkl'):
     WORDS = load_spanish_model() 
 else:
     WORDS = create_and_save_spanish_model()

@@ -2,7 +2,7 @@ from typing import Optional
 
 from fastapi import FastAPI
 
-from expand_query import expand_query 
+from app.expand_query import expand_query 
 
 app = FastAPI()
 

@@ -10,9 +10,9 @@ import snowballstemmer
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 import sys
 
-from nlp_tools.spell_correction import spell_correction
-from nlp_tools.stopwords_filter import remove_stopwords
-from nlp_tools.lemmatization import lemmatizer
+from app.nlp_tools.spell_correction import spell_correction
+from app.nlp_tools.stopwords_filter import remove_stopwords
+from app.nlp_tools.lemmatization import lemmatizer
 
 # Preprocesamiento de datos
 '''
