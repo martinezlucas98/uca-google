@@ -1,17 +1,18 @@
 
 import Results from './Results';
-import datos from './datos.json';
+//import datos from './datos.json';
 import styles from './Results.module.css';
 
-function Show_results(){
+function Show_results(props){
   return(
     <div>
     {
-      datos.map(dato =>{
+      props.datox.map(dato =>{
         return(
           <Results
-          link={dato.link}
-          description={dato.description}
+          key={dato.id}
+          link={dato.website}
+          description={dato.name}
         />
         )
       })
