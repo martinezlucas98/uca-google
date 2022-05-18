@@ -2,6 +2,7 @@ from text_normalization import  normalize
 from nlp_tools.named_entity import get_entity
 from nlp_tools.part_of_speech import get_part_of_speech
 
+
 def expand_query(sentence:str) -> dict : 
     response = {
         'original_sentence': sentence,
