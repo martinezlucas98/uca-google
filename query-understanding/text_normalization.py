@@ -33,7 +33,7 @@ def tokenization(input_text):
     return word_token
 
 # Stemming del texto no estructurado, utilizando un diccionario de palabras
-def stemming(input_text):
+def stemming(input_text: list) -> list:
     # dic = hunspell.HunSpell("es_ANY.dic", "es_ANY.aff")
     # stemmer = PorterStemmer()
     # #input_text = nltk.word_tokenize(input_text)

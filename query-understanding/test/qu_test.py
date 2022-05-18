@@ -1,16 +1,18 @@
 import unittest
-from text_normalization import normalize_accents
+
 from nlp_tools.tokenizer import tokenizer
 from nlp_tools.stopwords_filter import remove_stopwords
+from nlp_tools.lemmatization import lemmatizer
+from text_normalization import stemming
 
 class QueryUnderstandingTest(unittest.TestCase):
-    def test_normalize_accents(self):
-        self.assertEqual(normalize_accents('donde hay un balcón.'), 'donde hay un balcon.')
-        self.assertEqual(normalize_accents('Enseñó'), 'Enseno')
+    # def test_normalize_accents(self):
+    #     self.assertEqual(normalize_accents('donde hay un balcón.'), 'donde hay un balcon.')
+    #     self.assertEqual(normalize_accents('Enseñó'), 'Enseno')
         
         # Agregar para acentos nasales 
 
-    def test_tokenizer(self):
+    def test_tokenizer_spacy(self):
         self.assertEqual(
             tokenizer('Horarios de clases de economía.'),
             ['Horarios', 'de', 'clases', 'de', 'economía', '.' ]
@@ -41,6 +43,22 @@ class QueryUnderstandingTest(unittest.TestCase):
             second= ['Ayer', 'vi', 'hermano',  'calle']
             
         )
+    
+    def test_lemmatization_spacy(self):
+        self.assertEqual(
+            first= lemmatizer(['hablando', 'jugando', 'jugar', 'comiendo', 'horarios', 'personas', 'ideas', 'cosas', 'yendo']),
+            second= ['hablar', 'jugar', 'jugar', 'comer', 'horario', 'persona', 'idea', 'cosa','ir']
+        )
+
+    def test_stemming(self):
+        self.assertEqual(
+            first= stemming(['En', 'su', 'parte', 'de', 'arriba', 'encontramos', 'la', 'donde', 'se', 'puede', 'echar', 'el', 'detergente', 'aunque', 'en', 'nuestro', 'caso', 'lo', 'al', 'ser', 'gel', 'lo', 'ponemos', 'directamente', 'junto', 'con', 'la', 'ropa','.']),
+            second= ['En', 'su', 'part', 'de', 'arrib', 'encontr', 'la',  'dond', 'se', 'pued', 'echar', 'el', 'detergent',  'aunqu', 'en', 'nuestr', 'cas', 'lo', 'al', 'ser', 'gel', 'lo', 'pon', 'direct', 'junt', 'con', 'la', 'rop', '.']
+
+        )
+
+    
+
         
         
 
