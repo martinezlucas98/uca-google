@@ -7,12 +7,11 @@ function Show_results(props){
   return(
     <div>
     {
-      props.datox.map(dato =>{
+      props.datox.results.map(dato =>{
         return(
           <Results
-          key={dato.id}
-          link={dato.website}
-          description={dato.name}
+          link={dato.url}
+          description={dato.url}
         />
         )
       })

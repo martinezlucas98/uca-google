@@ -27,11 +27,16 @@ function results({data}) {
 // This gets called on every request
 export async function getServerSideProps({query}) {
   // Fetch data from external API
+  
   console.log(query.q)
-  const res = await fetch('https://jsonplaceholder.typicode.com/users')
-  const data = await res.json()
+  const res = await fetch('http://127.0.0.1:8000/search?q=' + query.q)
+  let data = await res.json()
+  console.log(query)
+  data = JSON.parse(data);
   console.log(data)
+  //console.log(typeof data)
   // Pass data to the page via props
+
   return { props: { data } }
 }
 
