@@ -1,7 +1,53 @@
-# Development
+# Endpoints
+## /expand_query?q='sentence'
+|  Path          |     Query    |    Method | Description | 
+| -------------  | -------------| --------- | --------- |
+| /expand_query  | q: String    |    GET    |  returns the structured 'sentence' with the attributes listed below    |
+
+### Example
+```bash
+$ curl -X 'GET' 'http://127.0.0.1:8081/expand_query?q=horarios%20de%20clase%3F%3F%3F%3F' -H 'accept: application/json'
+```
+```python
+q = 'horarios de clase????'
+```
+Response:
+```json
+{
+  "original_sentence": "horarios de clase????",
+  "corrected_sentence": "horarios de clase",
+  "language": "es", // Still in development
+  "lemmatized_tokens": [
+    "horario",
+    "clase"
+  ],
+  "stemmed_tokens": [
+    "horari",
+    "clas"
+  ],
+  "query_expansion": {
+      "horario": ["lista de sinonimos o relacion con otra palabra"],
+      "clase": ["lista de sinonimos o relacion con otra palabra"],
+  }, // Still in development
+  "classification": "Informacion", // Still in development
+  "entity": {}, // Still in development
+  "part_of_speech": { 
+    "horarios": "NOUN",
+    "de": "ADP",
+    "clase": "NOUN"
+  }
+}
+```
+<br>
+
+## /expand_query?q='sentence'
+
+### Still in development🧑‍💻 👩‍💻
+
+<br>
 
 
-## Setup environment
+# Setup environment
 Go to  query understanding folder
 ```bash
 $ cd query-understanding
@@ -21,15 +67,10 @@ And then install the development dependencies:
 ```bash
 $ pip install -r requirements.txt
 ```
-You must also install Hunspell:
-```
-sudo apt-get update
-sudo apt-get install python-dev 
-sudo apt-get install libhunspell-dev
-sudo pip install hunspell
-```
-<br></br>
-## Run it
+
+<br>
+
+# Run it
 ```bash
 $ uvicorn main:app --reload
 
@@ -40,8 +81,13 @@ INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 
 ```
+
+or if you want to change the port like 8081
+```bash
+$ uvicorn main:app --host 127.0.0.1 --port 8081
+```
 <br></br>
-## Notes
+# Notes
 
 **Use the query-understanding folder as a root folder**, 
 So if you want to try some nlp tools like spell_correction.py 
@@ -50,7 +96,7 @@ run like this:
 $ python3 ./nlp_tools/spell_correction/spell_correction.py
 ```
 <br></br>
-## Unit Tests
+# Unit Tests
 
 To run all unit test in ./test/qu_test.py
 ```bash
