@@ -188,7 +188,9 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
     # Index will save after each file processed
     # This process needs to be safe, so in case a SIGTERM is received the index is not corrupted
     try:
-        if run_forever: print(f"Indexer running, Ctrl+C to interrupt\nScanning every {interval} seconds")
+        print("Indexer running, Ctrl+C to interrupt")
+        if run_forever: print(f"Scanning {settings.scraped_files_dir} every {interval} seconds")
+        else: print(f"Scanning {settings.scraped_files_dir}")
         while True: # I want a DO WHILE style of loop, i.e. run at least once
         # DO
             # scan files in settings.scraped_files_dir
