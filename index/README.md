@@ -17,7 +17,8 @@ tokenizer: nltk.word_tokenize(word_data)
 Various settings for both running the indexer and the server are found in settings.py
 ## Building index
 To run the indexer execute index.py. For usage/help use (from the project root)
-```$ python index/index.py --help
+```
+$ python index/index.py --help
 ```
 When executing the indexer, every dot is a file scanned. If no dots appear and the program prints new lines, check if the location settings.scraped_files_dir points to the right place and files with the name "uc_*.json" exist.
 
