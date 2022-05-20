@@ -18,23 +18,24 @@ tokenizer: nltk.word_tokenize(word_data)
 
 # Index
 ## Running index server
-From the project root (settings.py contains hostname and port settings):
+From the project root (**settings.py contains hostname and port settings, change them as needed**):
 ```
-$ python index/gpp_index_server.py
+$ python index/index_server.py
 Server started http://localhost:8080
+PID: 1234
 
 ```
 Keyboard interrupt to stop server.
 
 To run the server in the background:
 ```
-$ nohup python index/gpp_index_server.py &
-[1] 21372
+$ nohup python index/index_server.py &
+[1] 1234
 nohup: ignoring input and appending output to 'nohup.out'
 ```
-And to terminate (PID will vary):
+And to terminate:
 ```
-$ kill 21372
+$ kill 1234
 ```
 
 ## Querying the index
@@ -48,7 +49,7 @@ Some examples of queries returning json are:
 - http://localhost:8080/subs?q=query
 - http://localhost:8080/st?q=test
 
-These results are basically a subset of the full index, allowing faster searching and flexible results, e.g. http://localhost:8080/st?q=query will return all words starting with 'query', allowing the online serving module to decide how to serve results.
+These results are a subset of the full index, allowing faster searching and flexible results, e.g. http://localhost:8080/st?q=query will return all words starting with 'query', allowing the online serving module to decide how to serve results.
 
 An example on how to access this result:
 ```python
@@ -69,59 +70,10 @@ if r.status_code == 200:
         for item in index[token]:
             print("    {}: {}".format(item['url'], item['count']))
 ```
-Results:
-```python
->>> import requests
->>> r = requests.get('http://localhost:8080/st?q=query')
->>> if r.status_code == 200:
-...     index = r.json()    # the json contents can be easily translated into a dict
-...     print(type(index))
-...     print(index)
-...     print()
-...
-<class 'dict'>
-{'query': [{'url': 'www.querulousness.com', 'count': 49}, {'url': 'www.questers.com', 'count': 44}, {'url': 'www.quested.com', 'count': 44}, {'url': 'www.question.com', 'count': 43}, {'url': 'www.querying.com', 'count': 38}, {'url': 'www.querulously.com', 'count': 36}, {'url': 'www.quern.com', 'count': 34}, {'url': 'www.querulousnesses.com', 'count': 31}, {'url': 'www.questing.com', 'count': 30}, {'url': 'www.querists.com', 'count': 23}, {'url': 'www.quester.com', 'count': 21}, {'url': 'www.query.com', 'count': 7}, {'url': 'www.quest.com', 'count': 5}, {'url': 'www.querulous.com', 'count': 2}], 'querying': [{'url': 'www.questing.com', 'count': 49}, {'url': 'www.questionable.com', 'count': 41}, {'url': 'www.querulously.com', 'count': 38}, {'url': 'www.querulousnesses.com', 'count': 38}, {'url': 'www.querns.com', 'count': 35}, {'url': 'www.questers.com', 'count': 32}, {'url': 'www.quested.com', 'count': 31}, {'url': 'www.querulousness.com', 'count': 30}, {'url': 'www.quern.com', 'count': 29}, {'url': 'www.querying.com', 'count': 18}, {'url': 'www.quest.com', 'count': 8}, {'url': 'www.query.com', 'count': 5}, {'url': 'www.querulous.com', 'count': 3}]}
 
->>> for token in list(index.keys()):
-...     print(token + ':')
-...     # Iterate through pages where the token appears
-...     for item in index[token]:
-...         print("    {}: {}".format(item['url'], item['count']))
-...
-query:
-    www.querulousness.com: 49
-    www.questers.com: 44
-    www.quested.com: 44
-    www.question.com: 43
-    www.querying.com: 38
-    www.querulously.com: 36
-    www.quern.com: 34
-    www.querulousnesses.com: 31
-    www.questing.com: 30
-    www.querists.com: 23
-    www.quester.com: 21
-    www.query.com: 7
-    www.quest.com: 5
-    www.querulous.com: 2
-querying:
-    www.questing.com: 49
-    www.questionable.com: 41
-    www.querulously.com: 38
-    www.querulousnesses.com: 38
-    www.querns.com: 35
-    www.questers.com: 32
-    www.quested.com: 31
-    www.querulousness.com: 30
-    www.quern.com: 29
-    www.querying.com: 18
-    www.quest.com: 8
-    www.query.com: 5
-    www.querulous.com: 3
->>>
-
-```
 ## Unittest
-Launch the index server on localhost:8080 with a non-empty index to run unit tests.
+Launch the index server on localhost:8080 with a non-empty index to run unit tests. \
+TODO: make test independent
 
 ## Test data
-Test indices exist in the test_indices/ directory, large (~113K words with <15 pages each) is used by default. Other sizes are medium (~66K words), small (~10K words), and tiny (100 words)
+Test index contained in indices/index.pickle, and contains ~1100 tokens for 8 pages.
