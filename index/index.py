@@ -5,6 +5,8 @@ import os
 import pickle
 import signal
 import string
+from sys import argv
+from time import sleep
 from typing import Counter
 
 import nltk
@@ -95,7 +97,7 @@ class GPP_Index:
     def build_index(self, html_content: str, url: str, timestamp: float, links: list):
         '''# WIP
         
-        Goes through the return data of a scraped page, indexing the text.
+        Goes through the return data of a scraped page, indexing the text. Returns a string if the page was indexed
         
         Assumed format: {'content': ["<tags>text</tags>"], 'links': ["link1", "link2", ...]}'''
         
@@ -106,9 +108,11 @@ class GPP_Index:
         
         # Check if the page has been indexed before, if so delete the page off the index as if it was never indexed
         content_hash = hashlib.md5(html_content.encode())
+        is_update = False
         if url in self.indexed_urls:
             if self.indexed_urls[url] != content_hash.hexdigest():
                 self.del_page(url) # delete and re-index as anything could have changed
+                is_update = True
             else:
                 return # as this page is up to date on the index
         
@@ -154,8 +158,13 @@ class GPP_Index:
 
         # Done, add to list of urls
         self.indexed_urls[url] = content_hash.hexdigest()
+        
+        # Message
+        if is_update:
+            return f"{url} re-indexed (updated)"
+        return f"{url} indexed (first time)"
 
-def run_indexer(run_forever: bool = False):
+def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = False):
     '''Handles indexing frequency and file handling for the index.
     
     Every time a file is indexed, the index is saved so interrupt signals do not corrupt it.
@@ -174,30 +183,57 @@ def run_indexer(run_forever: bool = False):
     # Index will save after each file processed
     # This process needs to be safe, so in case a SIGTERM is received the index is not corrupted
     try:
+        if run_forever: print(f"Indexer running, Ctrl+C to interrupt\nScanning every {interval} seconds")
         while True: # I want a DO WHILE style of loop, i.e. run at least once
         # DO
             # scan files in settings.scraped_files_dir
             scrape_list = glob.glob(settings.scraped_files_dir + "uc_*.json")
             for filename in scrape_list:
-                print(filename)
+                if not silent: print('.', end='', flush=True)
                 with open(filename) as file:
                     page = json.load(file)
                 
                 # Index current page
                 fetch_ts = os.stat(filename).st_mtime
-                index.build_index(page['url_html'][0], page['url_self'][0], fetch_ts, [link['url'] for link in page['url_links']])
+                msg = index.build_index(page['url_html'][0], page['url_self'][0], fetch_ts, [link['url'] for link in page['url_links']])
 
                 # Save index object and index
                 # Any deletions or additions to the index were made in memory, receiving a SIGTERM before this would
                 # not have damaged the index on disk
-                index.dump()
+                if msg is not None:
+                    index.dump()
+                    if not silent: print(msg)
             
         # WHILE
+            if not silent: print()
             if not run_forever:
                 break
+            sleep(interval)
     except KeyboardInterrupt:
         stop_indexer()
 
 if __name__ == '__main__':
-    run_indexer(False)
+    
+    # Handle args
+    forever = False
+    interval = 5
+    silent = False
+    usage_msg = f"Usage: {argv[0]} [--forever] [-t <interval>] [-s] [-h | --help]"
+    if '--forever' in argv:
+        forever = True
+    if '-t' in argv:
+        try:
+            interval = int(argv[argv.index('-t') + 1])
+            if interval <= 0:
+                raise "Invalid"
+        except:
+            print(usage_msg)
+            exit(1)
+    if '-s' in argv:
+        silent = True
+    if '-h' in argv or '--help' in argv:
+        print(usage_msg)
+        exit(0)
+        
+    run_indexer(forever, interval, silent)
     exit(0)

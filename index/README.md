@@ -2,12 +2,8 @@
 ## TODO
 - [ ] Unit tests
 Indexes:
-Updates:
-    Calculate a hash of a page's content when indexing, for updates check hashes to see if it's worth
-    going through and reindexing the page.
 Page rank:
     Calculate ranking based on backlinks, counts, etc
-    Retrieval date
 
 ## Notes
 string punctuation: word_data.translate(word_data.maketrans('', '', string.punctuation + '…°'))
@@ -17,8 +13,15 @@ tokenizer: nltk.word_tokenize(word_data)
 -->
 
 # Index
+## Settings
+Various settings for both running the indexer and the server are found in settings.py
+## Building index
+To run the indexer execute index.py. For usage/help use (from the project root)
+```$ python index/index.py --help
+```
+
 ## Running index server
-From the project root (**settings.py contains hostname and port settings, change them as needed**):
+From the project root (*settings.py contains hostname and port settings, change them as needed*):
 ```
 $ python index/index_server.py
 Server started http://localhost:8080
