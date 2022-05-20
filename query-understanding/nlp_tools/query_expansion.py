@@ -6,11 +6,11 @@ from numpy.linalg import norm
 from gensim.models import KeyedVectors
 
 #logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.INFO)
-we = KeyedVectors.load_word2vec_format('nlp_tools/query_expansion/fasttext-sbwc.100k.vec', limit=100000)
+we = KeyedVectors.load_word2vec_format('nlp_tools/fasttext-sbwc.100k.vec', limit=100000)
 #we = KeyedVectors.load_word2vec_format('fasttext-sbwc.100k.vec', limit=100000)
 clases = []
 #Conjunto de clases que usamos para clasificar el query
-with open('nlp_tools/query_expansion/clases.tsv') as f:
+with open('nlp_tools/clases.tsv') as f:
 #with open('clases.tsv') as f:
     clases = [line[:-1] for line in f]
 
