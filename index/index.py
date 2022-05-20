@@ -68,8 +68,13 @@ class GPP_Index:
         '''Dumps self so it can be updated later.'''
         self.strip()
         self.sort()
-        with open(filename, 'wb') as file:
-            pickle.dump(self, file)
+        try:
+            with open(filename, 'wb') as file:
+                pickle.dump(self, file)
+        except FileNotFoundError:
+            os.mkdir("index/indices")
+            self.dump(filename)
+            return
         self.dump_index(no_clean=True)
     
     def dump_index(self, index_filename: str = settings.index_filename, no_clean: bool = False):
