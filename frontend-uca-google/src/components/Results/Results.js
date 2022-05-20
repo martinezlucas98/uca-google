@@ -12,9 +12,11 @@ function Results(props){
 
                 <div className='wrapper'>
                   
-                    <p className={styles.link}> Link = {props.link}</p>
+                  <p className={styles.link}> Title = {props.title}</p>
                   
-                  <p className={styles.description}> Descripcion = {props.description}</p>
+                  <p className={styles.link}> Link = {props.link}</p>
+                  
+                  <p className={styles.description}> Description = {props.description}</p>
                 
                 </div>
           
