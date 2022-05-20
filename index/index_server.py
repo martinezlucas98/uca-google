@@ -5,10 +5,7 @@ import pickle
 from signal import SIGTERM, signal
 import sys
 
-# Settings
-host_name = "localhost"
-server_port = 8080
-index_filename = "index/test_indices/large.pickle"
+import settings
 
 class IndexServer(BaseHTTPRequestHandler):
     def log_message(self, format: str, *args):
@@ -41,14 +38,14 @@ class IndexServer(BaseHTTPRequestHandler):
         self.wfile.write(bytes("<html><head><title>Top text</title></head>", "utf-8"))
         self.wfile.write(bytes("<p style=\"color:#c5c8c6\">Request: %s</p>" % self.path, "utf-8"))
         self.wfile.write(bytes("<body style=\"background-color:#1d1f21\">", "utf-8"))
-        self.wfile.write(bytes("<p style=\"color:#c5c8c6\">This request returns nothing. <a href=\"http://{}:{}/help\">Help</a></p>".format(host_name, server_port), "utf-8"))
+        self.wfile.write(bytes("<p style=\"color:#c5c8c6\">This request returns nothing. <a href=\"http://{}:{}/help\">Help</a></p>".format(settings.host_name, settings.server_port), "utf-8"))
         self.wfile.write(bytes("<p style=\"color:#c5c8c6\">Bottom text</p>", "utf-8"))
         self.wfile.write(bytes("</body></html>", "utf-8"))
     
     def do_GET_index(self):
         '''Inefficient!
         Returns whole index as json.'''
-        with open(index_filename, 'rb') as file:
+        with open(settings.index_filename, 'rb') as file:
             idx = pickle.load(file)
         
         self.send_response(200)
@@ -61,7 +58,7 @@ class IndexServer(BaseHTTPRequestHandler):
         
         Search substrings with "q=substr[+more+substrings]"'''
         
-        with open(index_filename, 'rb') as file:
+        with open(settings.index_filename, 'rb') as file:
             idx = pickle.load(file)
 
         q_param = self.get_parameter('q', paramstr)
@@ -87,7 +84,7 @@ class IndexServer(BaseHTTPRequestHandler):
         
         Search with "q=[char o chars]", e.g. q=apb'''
         
-        with open(index_filename, 'rb') as file:
+        with open(settings.index_filename, 'rb') as file:
             idx = pickle.load(file)
 
         q_param = self.get_parameter('q', paramstr)
@@ -107,7 +104,7 @@ class IndexServer(BaseHTTPRequestHandler):
         
         Search substrings with "q=substr[+more+substrs]"'''
         
-        with open(index_filename, 'rb') as file:
+        with open(settings.index_filename, 'rb') as file:
             idx = pickle.load(file)
 
         q_param = self.get_parameter('q', paramstr)
@@ -175,22 +172,17 @@ class IndexServer(BaseHTTPRequestHandler):
             return None
 
 def start_server(index_fn: str = None, be_quiet: bool = False):
-    global index_filename
     global quiet 
     quiet = be_quiet
-    if index_fn is None:
-        print(f"Test index '{index_filename}' used")
-    else:
-        index_filename = index_fn
-        print(f"Index '{index_fn}' used")
     
     try:
-        with open(index_filename, 'rb') as fd:
+        with open(settings.index_filename, 'rb') as fd:
             pass
+        print(f"Index '{settings.index_filename}' used")
     except FileNotFoundError:
-        print(f"Index file at {index_filename} not found.\nAborted", file=sys.stderr)
+        print(f"Index file at {settings.index_filename} not found.\nAborted", file=sys.stderr)
         exit(1)
-    webServer = HTTPServer((host_name, server_port), IndexServer)
+    webServer = HTTPServer((settings.host_name, settings.server_port), IndexServer)
     
     # Terminate process with SIGINT and SIGTERM
     def stop_server(*args):
@@ -199,7 +191,7 @@ def start_server(index_fn: str = None, be_quiet: bool = False):
         exit(0)
     signal(SIGTERM, stop_server)
     
-    print("Server started http://%s:%s" % (host_name, server_port))
+    print("Server started http://%s:%s" % (settings.host_name, settings.server_port))
     print("PID: {}".format(os.getpid()))
     try:
         webServer.serve_forever()

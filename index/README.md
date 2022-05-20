@@ -2,11 +2,6 @@
 ## TODO
 - [ ] Unit tests
 Indexes:
-    URLs to pages needed
-- [ ] Puctuation stripped
-- [ ] Punctuation included
-- [ ] Multiple words (?)
-- [ ] URL to title and meta tags/descriptions
 Updates:
     Calculate a hash of a page's content when indexing, for updates check hashes to see if it's worth
     going through and reindexing the page.
@@ -23,7 +18,7 @@ tokenizer: nltk.word_tokenize(word_data)
 
 # Index
 ## Running index server
-From the project root:
+From the project root (settings.py contains hostname and port settings):
 ```
 $ python index/gpp_index_server.py
 Server started http://localhost:8080

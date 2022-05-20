@@ -8,6 +8,8 @@ import nltk
 import unidecode
 from bs4 import BeautifulSoup
 
+import settings
+
 
 def page_count(page):
     '''Auxiliary function for sorting pages in the index
@@ -142,7 +144,11 @@ class GPP_Index:
 
         # Done, add to list of urls
         self.indexed_urls[url] = content_hash.hexdigest()
-    
+
+def run_indexer(index: GPP_Index, run_forever: bool = False):
+    '''Handles indexing frequency and file handling for the index'''
+    pass
+
 if __name__ == '__main__':
     # Examples
     test_index = GPP_Index('test_index.pickle')
