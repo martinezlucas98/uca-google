@@ -6,6 +6,7 @@ from nlp_tools.query_expansion import query_expansion, entity_recongnition
 
 def expand_query(sentence:str) -> dict : 
     response = {
+        'status': 'ok',
         'original_sentence': sentence,
         'corrected_sentence': '',
         'language': '',

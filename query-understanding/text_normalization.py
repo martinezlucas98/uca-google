@@ -64,15 +64,20 @@ def normalize(input_text):
 
     #tokenizamos
     tokenize = tokenization(clean)
+
     # Corregimos typos
     spell_check_sentence = [spanish.correction(token) for token in tokenize]
+
     # remove stopwords( 'de', 'la', 'del')
     tokenize = remove_stopwords(spell_check_sentence)
+
     #stemming
     stem = stemming(tokenize)
+
     #lemmatization
     # lem = lemmatization(tokenize)
     lem = lemmatizer(tokenize)
+    
     return clean, stem,lem, spell_check_sentence
 
 if __name__ == "__main__":

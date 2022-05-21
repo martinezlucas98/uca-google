@@ -14,6 +14,13 @@ def read_root():
 ## Soporta parametros como "/expand_query?q=hola%20Google"
 @app.get("/expand_query")
 def expand_query_route( q: Optional[str] = None):
+    
+    # if the user send a empty argument
+    if not q:
+        return {'status': 'empty query'}
+        
+    
+    q = str(q)
     lower_case = q.lower()
     response = expand_query(sentence = lower_case)
     return response

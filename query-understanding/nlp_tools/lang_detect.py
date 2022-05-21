@@ -14,6 +14,9 @@ def language_detect(sentence: str)-> str:
     if 'ñ' in sentence:
         ca = 1
 
+    # if the sentence is only numbers or is empty -> return unknown language
+    if sentence.isdecimal() or not sentence:
+        return 'unknown'
     language = detect(sentence)
     if language =='ca' and ca:
         language = 'es'
@@ -21,3 +24,4 @@ def language_detect(sentence: str)-> str:
 
 if __name__ == '__main__':
     print(language_detect('tesis del año.. '))
+    print(language_detect('112s'))
