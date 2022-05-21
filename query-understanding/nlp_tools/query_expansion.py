@@ -4,29 +4,41 @@ import numpy as np
 import logging
 from numpy.linalg import norm
 from gensim.models import KeyedVectors
+from sklearn.metrics import classification_report, accuracy_score
+from zmq import NULL
 
-#logging.basicConfig(format='%(asctime)s : %(message)s', level=logging.INFO)
 we = KeyedVectors.load_word2vec_format('nlp_tools/fasttext-sbwc.100k.vec', limit=100000)
-#we = KeyedVectors.load_word2vec_format('fasttext-sbwc.100k.vec', limit=100000)
 clases = []
-#Conjunto de clases que usamos para clasificar el query
 with open('nlp_tools/clases.tsv') as f:
-#with open('clases.tsv') as f:
-    clases = [line[:-1] for line in f]
+  clases = [line[:-1] for line in f]
 
 #Query expansion
 def query_expansion(texto):
-  #return we.similar_by_word("mujer")
+  """Give a list of words 
+    and return a list of related words 
+
+    Query expansion - Add related words to a query in order to increase the number of returned documents and improve recall accordingly.
+
+    e.g:
+     query_expansion(['tesis','del','año','2019] )
+     -> ['doctoral', 'teoria','disertacion']
+  """
   words_exp = []
   for word in texto:
     if word in we:
       words_exp += we.most_similar(positive=word)
-  final = [ x[0] for x in words_exp]
+  final = [ x[0] for x in words_exp[0:10]]
   return final
     
-
-#Reconocimiento de entidad
+#Classification of sentence
 def classification(texto, clases):
+  """Give a sentence 
+    and returns the classification group of the sentece
+
+    e.g:
+     classification('cuarto de pollo')
+     ->  'alimentos'
+  """
   sims = [similarity(texto, clase) for clase in clases]
   indices = range(len(sims))
   ind_max = max(indices, key=lambda i: sims[i])
@@ -49,7 +61,3 @@ def similarity(texto_1, texto_2):
 
 def entity_recongnition(texto):
   return clases[classification(texto,clases)]
-  
-#print(entity_recongnition(['cuarto','de','pollo']))
-#print("\nquery expansion: ",query_expansion(['mujer','tesis','feliz']))
-#print(we.most_similar(positive=['rey','mujer'], negative=['hombre']))
