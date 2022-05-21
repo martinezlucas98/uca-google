@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Datasets 
+dataset/fasttext-sbwc.100k.vec
+
 # C extensions
 *.so
 

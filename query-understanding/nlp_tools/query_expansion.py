@@ -1,15 +1,34 @@
 from cgitb import text
 from ntpath import join
+from urllib import response
 import numpy as np
 import logging
 from numpy.linalg import norm
 from gensim.models import KeyedVectors
 from sklearn.metrics import classification_report, accuracy_score
 from zmq import NULL
+import requests
+import os
+import gzip
+import io
+import zlib
 
-we = KeyedVectors.load_word2vec_format('nlp_tools/fasttext-sbwc.100k.vec', limit=100000)
+
+VECT_URL = 'http://dcc.uchile.cl/~jperez/word-embeddings/fasttext-sbwc.100k.vec.gz'
+
+
+if not os.path.exists('dataset/fasttext-sbwc.100k.vec'):
+  print("Downloading fasttext-sbwc.100k.vec.gz ......")
+  print("This should only happen once")
+  response = requests.get(VECT_URL)
+  data = zlib.decompress(response.content, zlib.MAX_WBITS|32)
+  with open('dataset/fasttext-sbwc.100k.vec','wb') as outFile:
+    outFile.write(data)
+
+
+we = KeyedVectors.load_word2vec_format('dataset/fasttext-sbwc.100k.vec', limit=100000)
 clases = []
-with open('nlp_tools/clases.tsv') as f:
+with open('dataset/clases.tsv') as f:
   clases = [line[:-1] for line in f]
 
 #Query expansion

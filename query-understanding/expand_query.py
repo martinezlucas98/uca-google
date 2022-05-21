@@ -2,7 +2,7 @@ from text_normalization import  normalize
 from nlp_tools.named_entity import get_entity
 from nlp_tools.part_of_speech import get_part_of_speech
 from nlp_tools.lang_detect import language_detect
-from nlp_tools.query_expansion.query_expansion import query_expansion, entity_recongnition
+from nlp_tools.query_expansion import query_expansion, entity_recongnition
 
 def expand_query(sentence:str) -> dict : 
     response = {
@@ -17,7 +17,7 @@ def expand_query(sentence:str) -> dict :
         #'part_of_speech': {}
     }
 
-    clean,stemmed_tokens, lemmatized_tokens, corrected_sentence = normalize(sentence)
+    clean, stemmed_tokens, lemmatized_tokens, corrected_sentence = normalize(sentence)
     language = language_detect(clean)
     classification = entity_recongnition(clean)
     query_expan = query_expansion(corrected_sentence)

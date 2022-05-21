@@ -10,7 +10,8 @@ import snowballstemmer
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 import sys
 
-from nlp_tools.spell_correction import spell_correction
+#from nlp_tools.spell_correction import spell_correction
+from spellchecker import SpellChecker
 from nlp_tools.stopwords_filter import remove_stopwords
 from nlp_tools.lemmatization import lemmatizer
 
@@ -22,6 +23,7 @@ from nlp_tools.lemmatization import lemmatizer
         3. Stemming & Lemmatization
 '''
 
+spanish = SpellChecker(language='es')  # use the Spanish Dictionary for spell checker
 
 # Limpieza del texto no estructurado (remove  '.', ',' '?', '!')
 def cleaning(input_text):
@@ -63,7 +65,7 @@ def normalize(input_text):
     #tokenizamos
     tokenize = tokenization(clean)
     # Corregimos typos
-    spell_check_sentence = [spell_correction.correction(word=token) for token in tokenize]
+    spell_check_sentence = [spanish.correction(token) for token in tokenize]
     # remove stopwords( 'de', 'la', 'del')
     tokenize = remove_stopwords(spell_check_sentence)
     #stemming
@@ -71,7 +73,7 @@ def normalize(input_text):
     #lemmatization
     # lem = lemmatization(tokenize)
     lem = lemmatizer(tokenize)
-    return stem,lem, (' ').join(spell_check_sentence)
+    return clean, stem,lem, spell_check_sentence
 
 if __name__ == "__main__":
     print(normalize('!!#$%^tesiss del 2019.'))
