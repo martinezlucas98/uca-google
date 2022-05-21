@@ -46,7 +46,6 @@ def main(argv):
         t2 = time.time()
         results = { "status": 'notfound', "time": round(t2-t1, 3), "results":argv }
     
-    print(results)
     return json.dumps(results)
         
 if __name__ == "__main__":   
