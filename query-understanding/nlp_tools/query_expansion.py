@@ -2,15 +2,14 @@ from cgitb import text
 from ntpath import join
 from urllib import response
 import numpy as np
-import logging
+
 from numpy.linalg import norm
 from gensim.models import KeyedVectors
-from sklearn.metrics import classification_report, accuracy_score
+
 from zmq import NULL
 import requests
 import os
-import gzip
-import io
+
 import zlib
 
 
