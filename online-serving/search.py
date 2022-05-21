@@ -50,6 +50,7 @@ def calculate_backlinks(pages):
     """
         Calculamos los backlinks que tienen cada pagina.
     """
+    
     for page in pages:
         backlinks = []
         for p in pages:
@@ -60,28 +61,30 @@ def calculate_backlinks(pages):
     return pages
         
 
-def generate_pages_linked(indexes):
+def generate_pages(indexes):
     """
-        Generamos los enlaces entre las paginas de manera aleatoria 
-        para la pruebas  el algoritmo pageRank, devuelve un dict con la pagina 
-        como key y como valor una lista con las paginas enlazadas.
+        Generamos las paginas a buscar con sus backlinks correspondiente, se 
+        retorna un diccionario donde las keys son las paginas y el valor otro
+        diccionario con sus valores correspondiente para el retorno.
+        Ej: {'url1':{'url':url1,'title':"t1", 'description':'d1', 'backlinks':[]}, 'url2': {...}, ...}
     """
     #se genera el dict
     indexes_keys = list(indexes.keys())
     linked_pages = {}
     for tk in indexes_keys:
-        for item in indexes[tk]:
-            linked_pages[item['url']] = {'title':item['title'], 'description':item['description'], 'links':item['links']}
+        for page in indexes[tk]:
+            linked_pages[page['url']] = {'url':page['url'],'title':page['title'], 
+            'description':page['description'], 'links':page['links']}
     linked_pages = calculate_backlinks(linked_pages)
     return linked_pages
     
 def pagerank(indexes_pages, n=1000):
     """
-        Retorna un diccionario donde las keys son las paginas asociado
-        con valor de rankeo de pageRank, n es n-iteraciones suficientes para poder 
-        converger los valores rankeados. 
+        Retorna un diccionario donde las keys son las puntuaciones asociado con
+        cada pagina, n es n-iteraciones suficientes para poder 
+        converger los valores rankeados.
     """
-    indexes_pages = generate_pages_linked(indexes_pages)
+    indexes_pages = generate_pages(indexes_pages)
     # comenzamos en una pagina aleatoria
     page = random.choice(list(indexes_pages.keys()))
     # contendra todas las posibles paginas a visitar a partir de la pag. actual
@@ -102,6 +105,9 @@ def pagerank(indexes_pages, n=1000):
     for page in indexes_pages.keys():
         rank = visited.count(page)/len(visited)
         ranked_pages[rank] = indexes_pages[page]
+    #odernamos de acuerdo a la puntuacion
+    ranked_pages = dict(sorted(ranked_pages.items(), reverse=True))
+ 
     return ranked_pages
 
 def get_next_page_prob(indexes_pages, current_page):
@@ -115,7 +121,6 @@ def get_next_page_prob(indexes_pages, current_page):
     # debemos saber que tan probable es visitar una pagina mediante links enlazados o ir directamente
     # a otra pagina (sin links).
     probability = {}
-    # print('get_next: ', indexes_pages[current_page]['links'])
     if len(indexes_pages[current_page]['links']) == 0:
         #si no tenemos ningun otro link se visita cualquier otra pagina
         prob_page = 1/len(indexes_pages.keys())
@@ -134,13 +139,14 @@ def get_next_page_prob(indexes_pages, current_page):
                                                 
     return probability   
 
-
 def main(argv):
     """
         Funcion principal
     """
 
     tokens = tokenize_query(argv)
+    if not tokens:
+        tokens = argv
     #se obtiene la busqueda de cada token en los indices
     t1 = time.time()
     indexes = get_index_request("+".join(tokens), "st")
@@ -148,10 +154,12 @@ def main(argv):
     results = None            
     if (indexes):
         ranked_pages = pagerank(indexes)
-        # print('Ranked:\n', ranked_pages)
-        ranked_pages = sorted(ranked_pages)
         t2 = time.time()
-        ranked_pages = [{"url": page} for page in ranked_pages]
+        ranked_pages = [{
+            "url": ranked_pages[rank]['url'], 
+            "title":ranked_pages[rank]['title'], 
+            "description":ranked_pages[rank]['description']
+        } for rank in ranked_pages]
         results = {
             "status": "success",
             "time": round(t2-t1, 3),
