@@ -1,16 +1,16 @@
 from search_modules.tokenization import tokenize_query
 from search_modules.pageRank import pagerank
+from settings import PATH_INDEX, PATH_QUERY
 
 import time
 import requests
 import json
 
-def get_index_request(tokens, path):
+def get_request(path, query_path, argv):
     """
-        Retorna la enumeracion encontrada en el index dado un token,
-        segun el path especificado.
+        Request con el metodo GET de alguno de los microsevicios(index o query-understanding).
     """
-    r = requests.get('http://localhost:8080/{}?q={}'.format(path, tokens))
+    r = requests.get(path + query_path + argv)
     if r.status_code == 200:        
         return r.json()
     else:
@@ -20,14 +20,15 @@ def main(argv):
     """
         Funcion principal
     """
+    ex = get_request(PATH_QUERY, "expand_query?q=", "clase test?")
+    ex = ex['lemmatized_tokens']
 
     tokens = tokenize_query(argv)
     if not tokens:
         tokens = argv
     #se obtiene la busqueda de cada token en los indices
     t1 = time.time()
-    indexes = get_index_request("+".join(tokens), "st")
-
+    indexes = get_request(PATH_INDEX, "st?q=", "+".join(tokens))
     results = None            
     if (indexes):
         ranked_pages = pagerank(indexes)
@@ -49,4 +50,17 @@ def main(argv):
     return json.dumps(results)
         
 if __name__ == "__main__":   
-    main("curso test?")
+    results = main("curso test?")
+    results = json.loads(results)
+    
+    print(">>>RESULTS:\n")
+    print("time:", results['time'], "\n")
+    if results['status'] == "success":
+        print("Pages:")     
+        for item in results['results']:
+            print('url:', item['url'])
+            print('title:', item['title'])
+            print('description:', item['description'], "\n")
+    else:
+        print("Not found")
+        print(results['results'])
