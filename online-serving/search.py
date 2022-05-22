@@ -32,6 +32,8 @@ def main(argv):
     results = None            
     if (indexes):
         ranked_pages = pagerank(indexes)
+        #odernamos de acuerdo a la puntuacion
+        ranked_pages = dict(sorted(ranked_pages.items(), reverse=True))
         t2 = time.time()
         ranked_pages = [{
             "url": ranked_pages[rank]['url'], 

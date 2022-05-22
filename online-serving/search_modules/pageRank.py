@@ -33,7 +33,7 @@ def generate_pages(indexes):
     for tk in indexes_keys:
         for page in indexes[tk]:
             linked_pages[page['url']] = {'url':page['url'],'title':page['title'], 
-            'description':page['description'], 'links':page['links']}
+            'description':page['description'], 'links':page['links'], 'count':page['count']}
     linked_pages = calculate_backlinks(linked_pages)
     return linked_pages
 
@@ -66,7 +66,7 @@ def get_next_page_prob(indexes_pages, current_page):
                                                 
     return probability
 
-def pagerank(indexes_pages, n=1000):
+def pagerank(indexes_pages, n=10000):
     """
         Retorna un diccionario donde las keys son las puntuaciones asociado con
         cada pagina, n es n-iteraciones suficientes para poder 
@@ -91,9 +91,13 @@ def pagerank(indexes_pages, n=1000):
     #rankeamos las paginas
     ranked_pages = {}
     for page in indexes_pages.keys():
-        rank = visited.count(page)/len(visited)
+        visited_count = visited.count(page)
+        rank = visited_count/len(visited)
+        #@CHANGE: desempate (se arreglara luego con el index de acuerdo al contenido del HTML)
+        # esta frecuncia nos dice que un usuario visito 'n' veces esta pagina porque aparece 'count' veces
+        # el token en la pagina.
+        rank = rank + (indexes_pages[page]['count'] / visited_count)
+    
         ranked_pages[rank] = indexes_pages[page]
-    #odernamos de acuerdo a la puntuacion
-    ranked_pages = dict(sorted(ranked_pages.items(), reverse=True))
  
     return ranked_pages
