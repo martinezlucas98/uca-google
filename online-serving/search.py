@@ -20,10 +20,10 @@ def main(argv):
     """
         Funcion principal
     """
-    ex = get_request(PATH_QUERY, "expand_query?q=", "clase test?")
-    ex = ex['lemmatized_tokens']
-
-    tokens = tokenize_query(argv)
+    #tokenizamos el query
+    tokens = get_request(PATH_QUERY, "expand_query?q=",argv)
+    tokens = tokens['corrected_sentence']
+    # tokens = tokenize_query(argv)
     if not tokens:
         tokens = argv
     #se obtiene la busqueda de cada token en los indices
