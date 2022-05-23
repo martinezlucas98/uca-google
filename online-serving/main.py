@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from typing import Optional
-from search import main
+from search import search
 
 app = FastAPI()
 
@@ -9,9 +9,9 @@ def read_root():
     return {"welcome": "online serving"}
 
 @app.get("/search")
-def search(q: Optional[str] = None):
+def search_service(q: Optional[str] = None):
     """
         Devuelve los datos de busqueda por relevancia.
     """
-    data = main(str(q))
+    data = search(str(q))
     return data

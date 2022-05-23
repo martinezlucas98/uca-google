@@ -32,7 +32,7 @@ def generate_pages(indexes):
     linked_pages = {}
     for tk in indexes_keys:
         for page in indexes[tk]:
-            linked_pages[page['url']] = {'url':page['url'],'title':page['title'], 
+            linked_pages[page['url']] = {'title':page['title'], 
             'description':page['description'], 'links':page['links'], 'count':page['count']}
     linked_pages = calculate_backlinks(linked_pages)
     return linked_pages

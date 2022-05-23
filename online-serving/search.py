@@ -16,7 +16,7 @@ def get_request(path, query_path, argv):
     else:
         return None
 
-def main(argv):
+def search(argv):
     """
         Funcion principal
     """
@@ -38,7 +38,7 @@ def main(argv):
         ranked_pages= dict(sorted(ranked_pages.items(), key=lambda x: x[1], reverse=True))
         t2 = time.time()        
         ranked_pages = [{
-                "url": indexes[page]['url'], 
+                "url": page, 
                 "title":indexes[page]['title'], 
                 "description":indexes[page]['description']
         } for page in ranked_pages.keys()]
@@ -54,7 +54,7 @@ def main(argv):
     return json.dumps(results)
         
 if __name__ == "__main__":   
-    results = main("curso test?")
+    results = search("curso de ingenieria en informatica?")
     results = json.loads(results)
     
     print(">>>RESULTS:\n")
