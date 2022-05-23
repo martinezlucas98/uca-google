@@ -22,13 +22,13 @@ def search(argv):
     """
     #tokenizamos el query
     tokens = get_request(PATH_QUERY, "expand_query?q=",argv)
-    tokens = tokens['corrected_sentence']
-    # tokens = tokenize_query(argv)
-    if not tokens:
-        tokens = argv
+    query_tokens = tokens['stemmed_tokens']
+    
+    if not bool(query_tokens):
+        query_tokens = tokens['corrected_sentence'].split(' ')
     #se obtiene la busqueda de cada token en los indices
     t1 = time.time()
-    indexes = get_request(PATH_INDEX, "st?q=", "+".join(tokens))
+    indexes = get_request(PATH_INDEX, "st?q=", "+".join(query_tokens))
     results = None            
     if (indexes):
         # generamos los backlinks correctos y obtenemos la puntuacion de c/pag con pageRank
@@ -53,18 +53,18 @@ def search(argv):
     
     return json.dumps(results)
         
-if __name__ == "__main__":   
-    results = search("curso de ingenieria en informatica?")
+if __name__ == "__main__":
+    sentence = "que se estudia en la carrera de ingenieria en informatica?" 
+    results = search(sentence)
     results = json.loads(results)
-    
+    print(f"\tSearch:  {sentence}\n")
     print(">>>RESULTS:\n")
     print("time:", results['time'], "\n")
     if results['status'] == "success":
         print("Pages:")     
         for item in results['results']:
-            print('url:', item['url'])
-            print('title:', item['title'])
-            print('description:', item['description'], "\n")
+            print('\turl:', item['url'])
+            print('\ttitle:', item['title'])
+            print('\tdescription:', item['description'], "\n")
     else:
-        print("Not found")
-        print(results['results'])
+        print("Not found:", results['results'])
