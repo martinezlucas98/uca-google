@@ -44,14 +44,9 @@ class SearchTest(unittest.TestCase):
         # si se actualiza el indice con el crawler estos datos de prueba puede ser que 
         # estos datos ya no sean validos.
         data = [
-            'http://www.universidadcatolica.edu.py/preguntas-frecuentes/', 
+            'http://www.universidadcatolica.edu.py/preguntas-frecuentes/',
             'https://www.universidadcatolica.edu.py/admision-2/', 
-            'https://www.universidadcatolica.edu.py/', 
-            'http://www.universidadcatolica.edu.py/identidad/', 
-            'http://www.universidadcatolica.edu.py/posgrados/', 
-            'http://www.universidadcatolica.edu.py/pastoral/', 
-            'https://www.universidadcatolica.edu.py/author/uc/', 
-            'http://www.universidadcatolica.edu.py/deporte-y-cultura/'
+            'https://www.universidadcatolica.edu.py/author/uc/'
         ]
         pages = search("curso de testing?")
         pages = json.loads(pages)
