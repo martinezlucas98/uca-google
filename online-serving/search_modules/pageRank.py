@@ -66,38 +66,44 @@ def get_next_page_prob(indexes_pages, current_page):
                                                 
     return probability
 
-def pagerank(indexes_pages, n=10000):
+def pagerank(indexes_pages, tol=0.001):
     """
-        Retorna un diccionario donde las keys son las puntuaciones asociado con
-        cada pagina, n es n-iteraciones suficientes para poder 
-        converger los valores rankeados.
+        Damos un puntaje a cada pagina con el algoritmo pageRank.
+        Retorna las paginas con sus puntuaciones, ej: {'page1':0.24342, 'page2':0.45346, ...}
     """
-    indexes_pages = generate_pages(indexes_pages)
-    # comenzamos en una pagina aleatoria
-    page = random.choice(list(indexes_pages.keys()))
-    # contendra todas las posibles paginas a visitar a partir de la pag. actual
-    # para luego poder rankear.
-    visited = []
-    visited.append(page)
+    PAGE_KEYS = indexes_pages.keys()
+    # la puntuacion actual de las paginas, ej: {'page1':0.24342, 'page2':0.45346, ...}
+    current_rank = {}
+    for page in PAGE_KEYS:
+        current_rank[page] = 1/len(PAGE_KEYS)
     
-    # agregamos a visitados todas las posibles paginas que visitaremos a partir de la actual
-    # logicamente habra mas de uno.
-    for i in range(n):        
-        probabilities = get_next_page_prob(indexes_pages, visited[i])
-        next_page = np.random.choice(list(probabilities.keys()), p=list(probabilities.values()))
-        # agregamos la siguiente pagina posible a visitar
-        visited.append(next_page)
-    
-    #rankeamos las paginas
-    ranked_pages = {}
-    for page in indexes_pages.keys():
-        visited_count = visited.count(page)
-        rank = visited_count/len(visited)
-        #@CHANGE: desempate (se arreglara luego con el index de acuerdo al contenido del HTML)
-        # esta frecuncia nos dice que un usuario visito 'n' veces esta pagina porque aparece 'count' veces
-        # el token en la pagina.
-        rank = rank + (indexes_pages[page]['count'] / visited_count)
-    
-        ranked_pages[rank] = indexes_pages[page]
- 
-    return ranked_pages
+    #puntuacion actual para verficar la convergencia del pageRank
+    prev_rank = current_rank.copy()
+    while True:
+        for current_page in PAGE_KEYS:                        
+            prob = 0
+            for page in PAGE_KEYS:
+                page_links = indexes_pages[page]['links']
+                # si no hay backlinks agregamos todas las paginas que tenemos
+                if len(page_links) == 0:
+                    page_links = PAGE_KEYS
+                # la probabilidad de salir de nuestra pag. actual
+                if current_page in page_links:
+                    prob += prev_rank[page]/len(page_links)
+
+            # aplicamos la formula del pageRank y actualizamos los puntajes,
+            # probabilidad de seguir visitando paginas a partir de la actual
+            prob = (1-DAMPING_FACTOR)/len(PAGE_KEYS) + DAMPING_FACTOR * prob
+            current_rank[current_page] = prob
+
+        #verificamos si las puntuaciones de las paginas convergen
+        conv_total = 0            
+        for page in prev_rank.keys():            
+            if abs(prev_rank[page] - current_rank[page]) < tol:
+                conv_total += 1
+            else:
+                break
+        if conv_total == len(PAGE_KEYS):
+            return current_rank
+        #cargamos las punturacion actuales para seguir con la convergencia
+        prev_rank = current_rank.copy()    

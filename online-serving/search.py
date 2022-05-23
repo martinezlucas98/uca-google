@@ -1,5 +1,5 @@
 from search_modules.tokenization import tokenize_query
-from search_modules.pageRank import pagerank
+from search_modules.pageRank import pagerank, generate_pages
 from settings import PATH_INDEX, PATH_QUERY
 
 import time
@@ -31,15 +31,17 @@ def main(argv):
     indexes = get_request(PATH_INDEX, "st?q=", "+".join(tokens))
     results = None            
     if (indexes):
+        # generamos los backlinks correctos y obtenemos la puntuacion de c/pag con pageRank
+        indexes = generate_pages(indexes)
         ranked_pages = pagerank(indexes)
         #odernamos de acuerdo a la puntuacion
-        ranked_pages = dict(sorted(ranked_pages.items(), reverse=True))
-        t2 = time.time()
+        ranked_pages= dict(sorted(ranked_pages.items(), key=lambda x: x[1], reverse=True))
+        t2 = time.time()        
         ranked_pages = [{
-            "url": ranked_pages[rank]['url'], 
-            "title":ranked_pages[rank]['title'], 
-            "description":ranked_pages[rank]['description']
-        } for rank in ranked_pages]
+                "url": indexes[page]['url'], 
+                "title":indexes[page]['title'], 
+                "description":indexes[page]['description']
+        } for page in ranked_pages.keys()]
         results = {
             "status": "success",
             "time": round(t2-t1, 3),
