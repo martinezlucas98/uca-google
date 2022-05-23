@@ -10,3 +10,11 @@
   padding-left: 30px;
 
 }
+
+.logo{
+  float: left;
+  width: auto;
+  max-width: 10%;
+  padding-bottom: 20px;
+
+}
