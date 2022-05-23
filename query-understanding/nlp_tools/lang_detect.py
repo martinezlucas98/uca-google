@@ -1,6 +1,5 @@
 from langdetect import detect
 
-
 def language_detect(sentence: str)-> str:
     """Give a sentence 
     this function detect the language 

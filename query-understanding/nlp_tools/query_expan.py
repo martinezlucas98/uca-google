@@ -2,11 +2,8 @@ from cgitb import text
 from ntpath import join
 from urllib import response
 import numpy as np
-
 from numpy.linalg import norm
 from gensim.models import KeyedVectors
-
-from zmq import NULL
 import requests
 import os
 
@@ -63,19 +60,37 @@ def classification(texto, clases):
   return ind_max
 
 def to_vector(texto):
+  """Give a list of words 
+    and convert the list of words to a vector, 
+    add the vectors, and then return the resulting normalized vector
+  """
   tokens = texto.split()
   vec = np.zeros(300)
   for word in tokens:
-    # si la palabra está la acumulamos
     if word in we:
         vec += we[word]
   return vec / norm(vec)
 
 def similarity(texto_1, texto_2):
+  """Given two sentences 
+    and find the similarity of texts, 
+    using vectors and dot product of numpy
+
+    e.g:
+      similarity('perro','perros')
+        -> '0.95'
+  """
   vec_1 = to_vector(texto_1)
   vec_2 = to_vector(texto_2)
   sim = vec_1 @ vec_2
   return sim
 
 def entity_recongnition(texto):
+  """Give a sentence 
+    and returns the entity of the sentence 
+
+    e.g:
+      entity_recongnition('un cuarto de pollo')
+        -> 'alimentos'
+  """
   return clases[classification(texto,clases)]

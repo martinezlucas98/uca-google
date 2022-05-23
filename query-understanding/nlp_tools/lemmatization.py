@@ -12,14 +12,13 @@ def lemmatizer(words: list)-> list:
      -> ['hacer', 'tarea']
      where 'hacer' is the root format of 'haciendo'
     """
-
+    
     sentence = (' ').join(words)
     
     nlp = spacy.load('es_core_news_sm')
     doc = nlp(sentence)
     lemmatized = [w.lemma_ for w in doc]
     return lemmatized
-
 
 if __name__ == '__main__':
     print(lemmatizer(['haciendo','tarea', 'hablamos'] ))
