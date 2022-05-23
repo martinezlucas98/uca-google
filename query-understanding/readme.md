@@ -40,7 +40,7 @@ Response:
 ```
 <br>
 
-## /expand_query?q='sentence'
+## /autocomplete?q='sentence'
 
 ### Still in development🧑‍💻 👩‍💻
 
