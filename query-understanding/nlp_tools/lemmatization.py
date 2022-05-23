@@ -1,5 +1,4 @@
 import spacy
-import pickle
 
 def lemmatizer(words: list)-> list:
     """Give a list of words 

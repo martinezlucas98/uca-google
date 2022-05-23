@@ -1,5 +1,5 @@
-from distutils import core
-from os import remove
+
+
 import re
 import nltk
 nltk.download('punkt')
@@ -7,8 +7,7 @@ nltk.download('wordnet')
 nltk.download('omw-1.4')
 
 import snowballstemmer
-from nltk.stem import PorterStemmer, WordNetLemmatizer
-import sys
+
 
 #from nlp_tools.spell_correction import spell_correction
 from spellchecker import SpellChecker
