@@ -14,9 +14,10 @@ q = 'horarios de clase????'
 Response:
 ```json
 {
+  "status": "ok",
   "original_sentence": "horarios de clase????",
   "corrected_sentence": "horarios de clase",
-  "language": "es", // Still in development
+  "language": "spanish", //For now it is a static value
   "lemmatized_tokens": [
     "horario",
     "clase"
@@ -25,17 +26,39 @@ Response:
     "horari",
     "clas"
   ],
-  "query_expansion": {
-      "horario": ["lista de sinonimos o relacion con otra palabra"],
-      "clase": ["lista de sinonimos o relacion con otra palabra"],
-  }, // Still in development
-  "classification": "Informacion", // Still in development
-  "entity": {}, // Still in development
-  "part_of_speech": { 
-    "horarios": "NOUN",
-    "de": "ADP",
-    "clase": "NOUN"
-  }
+  "query_expansion": [
+    "horario",
+    "horarias",
+    "festivos",
+    "horaria",
+    "sábados",
+    "feriados",
+    "descansos",
+    "itinerarios",
+    "domingos",
+    "trayectos",
+    "la",
+    "y",
+    "</s>",
+    "en",
+    "del",
+    "el",
+    "0",
+    "los",
+    "las",
+    "incluyendo",
+    "clases",
+    "subclase",
+    "subclases",
+    "acomodada",
+    "class",
+    "trabajadora",
+    "adinerada",
+    "obrera",
+    "destructores",
+    "pudiente"
+  ],
+  "classification": "ropa de vestir" // needs a little fix here 😶
 }
 ```
 <br>
