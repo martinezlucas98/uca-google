@@ -1,8 +1,6 @@
 # Online-serving
-***
 This service is responsible for scoring the search pages to rank it by relevance to return as search result.
 ## Getting Started
-***
 These instructions are necessary to be able to run the necessary services of the project on your local machine.
 ### Prerequisites
 First make sure that the query-undestanding and index services respond correctly on the local machine.
@@ -60,10 +58,38 @@ $ python -m nltk.downloader popular
 more info: https://www.nltk.org/install.html
 
 ## Running online-serving
-***
+In settings.py, you must define the assigned ports for services Index and query-understanding:
+```py
+# SERVER (config)
+## host
+HOST = "http://localhost"
+## port
+PORT_INDEX = "8080" #port for index
+PORT_QUERY = "8081" #port for query understanding
+
+#PATH (no config)
+PATH_INDEX = HOST + ":" + PORT_INDEX + "/"
+PATH_QUERY = HOST + ":" + PORT_QUERY + "/"
+```
+modifies the ports with the value assigned for services index and query-understanding. Do not modify the PATH.
+
+Check the connection with the other services:
+```bash
+$ python -m unittest -v service_test.ServiceTest
+
+test_index_service (service_test.ServiceTest) ... ok
+test_query_service (service_test.ServiceTest) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.004s
+
+OK
+```
+If there are errors or failures in the test result, check the assigned ports correctly.
+
 From the project root:
 ```bash
-$ uvicorn main:app --reload
+$ uvicorn main:app --host 127.0.0.1 --port 8000 --reload 
 
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 INFO:     Started reloader process [28720]
