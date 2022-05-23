@@ -13,10 +13,13 @@ function SearchBar(){
   const handleSubmit=(e)=>{
     //console.log(value)
     e.preventDefault();
-    router.push({
-     pathname: '/results/' + value,
-     query: {q:value}
-   })
+    if(value.length != 0){
+      router.push({
+        pathname: '/results/' + value,
+        query: {q:value}
+      })
+    }
+    
   }
 
   //La funcion handleChange() se usa para poder utilizar el input del usuario y usamos un useState para obtener ese valor

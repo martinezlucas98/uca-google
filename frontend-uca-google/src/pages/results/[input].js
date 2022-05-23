@@ -35,29 +35,29 @@ export async function getServerSideProps({query}) {
   // Fetch data from external API
   
   console.log(query.q)
-  //const res = await fetch('http://127.0.0.1:8000/search?q=' + query.q)
-  //let data = await res.json()
-  let data =
-    {"status": "success",
-      "time": 0.8,
-      "results":[
-        {
-        "title": "Algun titulo del html",
-        "url": 'https://name.com',
-        "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text                   ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged"
-        },
-        {
-          "title": "Algun titulo del html1",
-          "url": 'https://name.com',
-          "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text                   ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged"
-        },
-        {
-          "title": "Algun titulo del html2",
-          "url": 'https://name.com',
-          "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text                   ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged"
-        }
-      ]
-    }
+  const res = await fetch('http://127.0.0.1:8000/search?q=' + query.q)
+  let data = await res.json()
+  // let data =
+  //   {"status": "success",
+  //     "time": 0.8,
+  //     "results":[
+  //       {
+  //       "title": "Algun titulo del html",
+  //       "url": 'https://name.com',
+  //       "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text                   ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged"
+  //       },
+  //       {
+  //         "title": "Algun titulo del html1",
+  //         "url": 'https://name.com',
+  //         "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text                   ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged"
+  //       },
+  //       {
+  //         "title": "Algun titulo del html2",
+  //         "url": 'https://name.com',
+  //         "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text                   ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged"
+  //       }
+  //     ]
+  //   }
   
   console.log(query)
   //data = JSON.parse(data);
