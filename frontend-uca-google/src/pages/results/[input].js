@@ -64,7 +64,16 @@ export async function getServerSideProps({query}) {
   console.log(data)
   //console.log(typeof data)
   // Pass data to the page via props
-
+  
+  if(data.status == 'notfound'){
+    data = {
+      results:[
+        {
+          url: "No se encontro nada"
+        }
+      ]
+    }
+  }
   return { props: { data } }
 }
 
