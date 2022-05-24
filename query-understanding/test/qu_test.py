@@ -1,6 +1,6 @@
 import unittest
 
-# from nlp_tools.tokenizer import tokenizer
+from nlp_tools.tokenizer import tokenizer
 from text_normalization import tokenization
 from nlp_tools.lang_detect import language_detect
 from nlp_tools.query_expansion import query_expansion, entity_recongnition
@@ -17,16 +17,26 @@ class QueryUnderstandingTest(unittest.TestCase):
 
     def test_tokenizer_spacy(self):
         self.assertEqual(
-            tokenization('Horarios de clases de economía.'),
+            tokenizer('Horarios de clases de economía.'),
             ['Horarios', 'de', 'clases', 'de', 'economía', '.' ]
         )
         self.assertEqual(
-            tokenization('¡Hola!'),
+            tokenizer('¡Hola!'),
             ['¡', 'Hola', '!']
         )
 
+    def test_tokenizer(self):
         self.assertEqual(
-            tokenization("me alegro, que tal todo?"),
+            tokenization('Horarios de clases de economía'),
+            ['Horarios', 'de', 'clases', 'de', 'economía']
+        )
+        self.assertEqual(
+            tokenization('Hola como andan'),
+            ['Hola', 'como', 'andan']
+        )    
+
+        self.assertEqual(
+            tokenizer("me alegro, que tal todo?"),
             ['me', 'alegro', ',', 'que', 'tal', 'todo', '?' ]
         )
 
@@ -62,7 +72,7 @@ class QueryUnderstandingTest(unittest.TestCase):
     
     def test_query_expansion(self):
         self.assertEqual(
-            first= query_expansion(['días','feriados']),
+            first= query_expansion(['días','feriados']),            
             second= ["meses","semanas","dias","mes","semana","laborables","transcurridos","años","horas","transcurridas"]
         )
         self.assertEqual(
@@ -72,12 +82,12 @@ class QueryUnderstandingTest(unittest.TestCase):
 
     def test_entity_recongnition(self):
         self.assertEqual(
-            entity_recongnition('carrera de informatica'),
-            'carrera'
+            first = entity_recongnition('carrera de informatica'),
+            second = 'carrera'
         )
         self.assertEqual(
-            entity_recongnition('un cuarto de carne'),
-            'carne'
+            first = entity_recongnition('un cuarto de carne'),
+            second = 'carne'
         )
     def test_language_detect(self):
         self.assertEqual(
