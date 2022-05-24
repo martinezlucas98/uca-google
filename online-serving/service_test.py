@@ -4,7 +4,7 @@ import requests
 import json
 
 from search_modules.pageRank import pagerank, generate_pages
-from settings import PATH_INDEX, PATH_QUERY
+from settings import PATH_INDEX, PATH_QUERY, PATH_ONLINE
 from search import search
 
 
@@ -100,6 +100,22 @@ class SearchTest(unittest.TestCase):
             second = True
         )
 
+class OnlineServingTest(unittest.TestCase):
+    def test_search(self):
+        r = requests.get(PATH_ONLINE + "search?q=curso+ingenieria+informatica").json()
+        r = json.loads(r)
+        self.assertEqual(
+            first = r['status'] == "success", 
+            second= True
+        )
+
+    def test_empty_search(self):
+        r = requests.get(PATH_ONLINE + "search?q=").json()
+        r = json.loads(r)
+        self.assertEqual(
+            first = r['status'] == "notfound", 
+            second= True
+        )
 
 if __name__ == "__main__":
     # print('test_pruebas')
@@ -109,6 +125,10 @@ if __name__ == "__main__":
 
     print("\n>>> SEARCH TESTS:")
     suite = unittest.TestLoader().loadTestsFromTestCase(SearchTest)
+    unittest.TextTestRunner(verbosity=2).run(suite)
+
+    print("\n>>> REQUEST SERVICES:")
+    suite = unittest.TestLoader().loadTestsFromTestCase(OnlineServingTest)
     unittest.TextTestRunner(verbosity=2).run(suite)
 
    
