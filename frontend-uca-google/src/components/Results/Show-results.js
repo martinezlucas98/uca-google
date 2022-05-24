@@ -7,7 +7,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 5;
 function Show_results(props){
 
   const[datosFromApi, setDatosFromApi] = useState(props.datox.results)
@@ -37,33 +37,43 @@ function Show_results(props){
  
   }
 
-
-  return(
-    <div>
-
-      <div className={styles.buttons}>
-        <button onClick={prevHandler} className={styles.buttonPrev}> <NavigateBeforeIcon/></button>
-        <button onClick={nextHandler} className={styles.buttonNext}><NavigateNextIcon/></button>
+  if(props.datox.status === "notfound"){
+    return(
+      <div>
+        <h1>No se encontraron resultados</h1>
+        <h2>Busca otra cosa</h2>
       </div>
- 
-    {
-      items.map(dato =>{
-        return(
-          <Results
-          title={dato.title}
-          link={dato.url}
-          description={dato.description}
-        />
-        )
-      })
-    }
-    
+    )
+  }else{
+    return(
+      <div>
   
-    </div>
+        <div className={styles.buttons}>
+          <button onClick={prevHandler} className={styles.buttonPrev}> <NavigateBeforeIcon/></button>
+          <button onClick={nextHandler} className={styles.buttonNext}><NavigateNextIcon/></button>
+        </div>
+   
+      {
+        items.map(dato =>{
+          return(
+            <Results
+            title={dato.title}
+            link={dato.url}
+            description={dato.description}
+          />
+          )
+        })
+      }
+      
+    
+      </div>
+  
+  
+  
+    );
 
-
-
-  );
+  }
+  
 
 }
 
