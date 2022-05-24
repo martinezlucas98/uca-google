@@ -202,8 +202,12 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
                 
                 # Index current page
                 fetch_ts = os.stat(filename).st_mtime
-                msg = index.build_index(page['url_html'][0], page['url_self'][0], fetch_ts,
-                                        [link['url'] for link in page['url_links']], force)
+                # Sometimes there are no links
+                try:
+                    links = [link['url'] for link in page['url_links']]
+                except:
+                    links = []
+                msg = index.build_index(page['url_html'][0], page['url_self'][0], fetch_ts, links, force)
 
                 # Save index object and index
                 # Any deletions or additions to the index were made in memory, receiving a SIGTERM before this would
@@ -213,7 +217,7 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
                     os.rename(settings.dev_index_obj + '~', settings.dev_index_obj)
                     index.dump_index(settings.index_filename + '~')
                     os.rename(settings.index_filename + '~', settings.index_filename)
-                    if not silent: print(msg)
+                    if not silent: print('\n' + msg)
             
         # WHILE
             if not silent: print()
