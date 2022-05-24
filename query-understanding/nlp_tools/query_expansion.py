@@ -1,4 +1,5 @@
-
+from cgitb import text
+from ntpath import join
 from urllib import response
 import numpy as np
 from numpy.linalg import norm
@@ -11,7 +12,7 @@ import zlib
 
 VECT_URL = 'http://dcc.uchile.cl/~jperez/word-embeddings/fasttext-sbwc.100k.vec.gz'
 
-# Si el dataset no tenmos descargado, entonces descarga
+
 if not os.path.exists('dataset/fasttext-sbwc.100k.vec'):
   print("Downloading fasttext-sbwc.100k.vec.gz ......")
   print("This should only happen once")
@@ -41,7 +42,7 @@ def query_expansion(texto):
   for word in texto:
     if word in we:
       words_exp += we.most_similar(positive=word)
-  final = [ x[0] for x in words_exp]
+  final = [ x[0] for x in words_exp[0:10]]
   return final
     
 #Classification of sentence
@@ -92,4 +93,4 @@ def entity_recongnition(texto):
       entity_recongnition('un cuarto de pollo')
         -> 'alimentos'
   """
-  return clases[classification(texto,clases)]
+  return clases[classification(texto,clases)].strip()
