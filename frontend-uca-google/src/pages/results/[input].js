@@ -19,6 +19,7 @@ function results({data}) {
       </div>
 
       <div className={styles.results}>
+        
         <Show_results datox={data}/>
        
       </div>

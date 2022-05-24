@@ -2,7 +2,7 @@
 import Results from './Results';
 //import datos from './datos.json';
 import styles from './Results.module.css';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 
@@ -13,6 +13,10 @@ function Show_results(props){
   const[datosFromApi, setDatosFromApi] = useState(props.datox.results)
   const[items, setItems] = useState([...props.datox.results].splice(0,ITEMS_PER_PAGE))
   const[currentPage, setCurrentPage] = useState(0)
+
+  useEffect(()=>{
+    setItems([...props.datox.results].splice(0,ITEMS_PER_PAGE))
+  },[props.datox.results]) ;
  
   const nextHandler = () => {
     const totalElementos = datosFromApi.length;
