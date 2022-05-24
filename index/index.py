@@ -101,12 +101,7 @@ class GPP_Index:
             self.index.pop(token)
     
     def build_index(self, html_content: str, url: str, timestamp: float, links: list, forced: bool = False):
-        '''Goes through the return data of a scraped page, indexing the text. Returns a string if the page was indexed
-        
-        Assumed format: {'content': ["<tags>text</tags>"], 'links': ["link1", "link2", ...]}'''
-        
-        # TBD:
-        # - Do I bother with the Markov chain idea?
+        '''Goes through the return data of a scraped page, indexing the text. Returns a string if the page was indexed'''
         
         # Check if the page has been indexed before, if so delete the page off the index as if it was never indexed
         content_hash = hashlib.md5(html_content.encode())
@@ -168,7 +163,7 @@ class GPP_Index:
             return f"{url} re-indexed (updated)"
         return f"{url} indexed (first time)"
 
-def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = False, force: bool = False):
+def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = False, force: bool = False, test_dir: str = None):
     '''Handles indexing frequency and file handling for the index.
     
     Every time a file is indexed, the index is saved so interrupt signals do not corrupt it.
@@ -176,25 +171,35 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
     
     force = True will cause all already indexed files to be re-indexed unconditionally once.'''
     
-    index = GPP_Index(settings.dev_index_obj)
-    
     # For handling signals while running forever
     def stop_indexer():
         print("Indexer stopped")
         exit(0)
     signal.signal(signal.SIGTERM, stop_indexer)
     
+    # this only exists for testing
+    if test_dir is None:
+        scraped_files_dir = settings.scraped_files_dir
+        dev_index_obj = settings.dev_index_obj
+        index_filename = settings.index_filename
+    else:
+        scraped_files_dir = test_dir + '/'
+        dev_index_obj = test_dir + '/' + 'test_dev_index.pickle'
+        index_filename = test_dir + '/' + 'test_index.pickle'
     
+    index = GPP_Index(dev_index_obj)
+
     # Index will save after each file processed
     # This process needs to be safe, so in case a SIGTERM is received the index is not corrupted
     try:
-        print("Indexer running, Ctrl+C to interrupt")
-        if run_forever: print(f"Scanning {settings.scraped_files_dir} every {interval} seconds")
-        else: print(f"Scanning {settings.scraped_files_dir}")
+        if not silent:
+            print("Indexer running, Ctrl+C to interrupt")
+            if run_forever: print(f"Scanning {scraped_files_dir} every {interval} seconds")
+            else: print(f"Scanning {scraped_files_dir}")
         while True: # I want a DO WHILE style of loop, i.e. run at least once
         # DO
-            # scan files in settings.scraped_files_dir
-            scrape_list = glob.glob(settings.scraped_files_dir + "uc_*.json")
+            # scan files in scraped_files_dir
+            scrape_list = glob.glob(scraped_files_dir + "uc_*.json")
             for filename in scrape_list:
                 if not silent: print('.', end='', flush=True)
                 with open(filename) as file:
@@ -202,18 +207,22 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
                 
                 # Index current page
                 fetch_ts = os.stat(filename).st_mtime
-                msg = index.build_index(page['url_html'][0], page['url_self'][0], fetch_ts,
-                                        [link['url'] for link in page['url_links']], force)
+                # Sometimes there are no links
+                try:
+                    links = [link['url'] for link in page['url_links']]
+                except:
+                    links = []
+                msg = index.build_index(page['url_html'][0], page['url_self'][0], fetch_ts, links, force)
 
                 # Save index object and index
                 # Any deletions or additions to the index were made in memory, receiving a SIGTERM before this would
                 # not have damaged the index on disk
                 if msg is not None:
-                    index.dump(settings.dev_index_obj + '~', self_only=True)
-                    os.rename(settings.dev_index_obj + '~', settings.dev_index_obj)
-                    index.dump_index(settings.index_filename + '~')
-                    os.rename(settings.index_filename + '~', settings.index_filename)
-                    if not silent: print(msg)
+                    index.dump(dev_index_obj + '~', self_only=True)
+                    os.rename(dev_index_obj + '~', dev_index_obj)
+                    index.dump_index(index_filename + '~')
+                    os.rename(index_filename + '~', index_filename)
+                    if not silent: print('\n' + msg)
             
         # WHILE
             if not silent: print()
