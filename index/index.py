@@ -99,23 +99,19 @@ class GPP_Index:
         for token in [token for token in self.index if self.index[token] == []]:
             self.index.pop(token)
     
-    def build_index(self, html_content: str, url: str, timestamp: float, links: list):
-        '''# WIP
-        
-        Goes through the return data of a scraped page, indexing the text. Returns a string if the page was indexed
+    def build_index(self, html_content: str, url: str, timestamp: float, links: list, forced: bool = False):
+        '''Goes through the return data of a scraped page, indexing the text. Returns a string if the page was indexed
         
         Assumed format: {'content': ["<tags>text</tags>"], 'links': ["link1", "link2", ...]}'''
         
         # TBD:
-        # - Where are the scraped pages being stored?
-        # - How do I find the url to a page? Currently there is page content and links only
         # - Do I bother with the Markov chain idea?
         
         # Check if the page has been indexed before, if so delete the page off the index as if it was never indexed
         content_hash = hashlib.md5(html_content.encode())
         is_update = False
         if url in self.indexed_urls:
-            if self.indexed_urls[url] != content_hash.hexdigest():
+            if self.indexed_urls[url] != content_hash.hexdigest() or forced:
                 self.del_page(url) # delete and re-index as anything could have changed
                 is_update = True
             else:
@@ -145,10 +141,10 @@ class GPP_Index:
 
             # Tokenize
             try:
-                tokens = [token.lower() for token in nltk.word_tokenize(body_text)]
+                tokens = [token.lower().strip(string.punctuation) for token in nltk.word_tokenize(body_text, language='spanish')]
             except LookupError:
                 nltk.download('punkt')
-                tokens = [token.lower() for token in nltk.word_tokenize(body_text)]
+                tokens = [token.lower().strip(string.punctuation) for token in nltk.word_tokenize(body_text, language='spanish')]
             
             # Count tokens
             counts = dict(Counter(tokens))
@@ -165,16 +161,19 @@ class GPP_Index:
         self.indexed_urls[url] = content_hash.hexdigest()
         
         # Message
-        if is_update:
+        if forced:
+            return f"{url} re-indexed (forced)"
+        elif is_update:
             return f"{url} re-indexed (updated)"
         return f"{url} indexed (first time)"
 
-def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = False):
+def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = False, force: bool = False):
     '''Handles indexing frequency and file handling for the index.
     
     Every time a file is indexed, the index is saved so interrupt signals do not corrupt it.
+    To stop if running forever use 'Ctrl+C' or send a SIGTERM using 'kill <PID>'
     
-    To stop if running forever use 'Ctrl+C' or send a SIGTERM using 'kill <PID>' '''
+    force = True will cause all already indexed files to be re-indexed unconditionally once.'''
     
     index = GPP_Index(settings.dev_index_obj)
     
@@ -202,7 +201,8 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
                 
                 # Index current page
                 fetch_ts = os.stat(filename).st_mtime
-                msg = index.build_index(page['url_html'][0], page['url_self'][0], fetch_ts, [link['url'] for link in page['url_links']])
+                msg = index.build_index(page['url_html'][0], page['url_self'][0], fetch_ts,
+                                        [link['url'] for link in page['url_links']], force)
 
                 # Save index object and index
                 # Any deletions or additions to the index were made in memory, receiving a SIGTERM before this would
@@ -215,6 +215,7 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
             if not silent: print()
             if not run_forever:
                 break
+            force = False
             sleep(interval)
     except KeyboardInterrupt:
         stop_indexer()
@@ -225,7 +226,8 @@ if __name__ == '__main__':
     forever = False
     interval = 5
     silent = False
-    usage_msg = f"Usage: {argv[0]} [--forever] [-t <interval>] [-s] [-h | --help]"
+    force = False
+    usage_msg = f"Usage: {argv[0]} [--forever] [-t <interval>] [-s] [--force] [-h | --help]"
     if '--forever' in argv:
         forever = True
     if '-t' in argv:
@@ -241,6 +243,8 @@ if __name__ == '__main__':
     if '-h' in argv or '--help' in argv:
         print(usage_msg)
         exit(0)
+    if '--force' in argv:
+        force = True
         
-    run_indexer(forever, interval, silent)
+    run_indexer(forever, interval, silent, force)
     exit(0)
