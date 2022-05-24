@@ -64,7 +64,7 @@ class GPP_Index:
         for token, page in [(token, page) for token in self.index for page in self.index[token] if page['url'] == url]:
             self.index[token].remove(page)
     
-    def dump(self, filename: str = settings.dev_index_obj):
+    def dump(self, filename: str = settings.dev_index_obj, self_only = False):
         '''Dumps self so it can be updated later.'''
         self.strip()
         self.sort()
@@ -75,7 +75,8 @@ class GPP_Index:
             os.mkdir("index/indices")
             self.dump(filename)
             return
-        self.dump_index(no_clean=True)
+        if not self_only:
+            self.dump_index(no_clean=True)
     
     def dump_index(self, index_filename: str = settings.index_filename, no_clean: bool = False):
         '''Dumps self.index into a pickled file. Sorts before dumping.
@@ -162,7 +163,7 @@ class GPP_Index:
         
         # Message
         if forced:
-            return f"{url} re-indexed (forced)"
+            return f"{url} indexed (forced)"
         elif is_update:
             return f"{url} re-indexed (updated)"
         return f"{url} indexed (first time)"
@@ -208,7 +209,10 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
                 # Any deletions or additions to the index were made in memory, receiving a SIGTERM before this would
                 # not have damaged the index on disk
                 if msg is not None:
-                    index.dump()
+                    index.dump(settings.dev_index_obj + '~', self_only=True)
+                    os.rename(settings.dev_index_obj + '~', settings.dev_index_obj)
+                    index.dump_index(settings.index_filename + '~')
+                    os.rename(settings.index_filename + '~', settings.index_filename)
                     if not silent: print(msg)
             
         # WHILE
