@@ -1,6 +1,9 @@
 import unittest
 
-from nlp_tools.tokenizer import tokenizer
+# from nlp_tools.tokenizer import tokenizer
+from text_normalization import tokenization
+from nlp_tools.lang_detect import language_detect
+from nlp_tools.query_expansion import query_expansion, entity_recongnition
 from nlp_tools.stopwords_filter import remove_stopwords
 from nlp_tools.lemmatization import lemmatizer
 from text_normalization import stemming
@@ -14,16 +17,16 @@ class QueryUnderstandingTest(unittest.TestCase):
 
     def test_tokenizer_spacy(self):
         self.assertEqual(
-            tokenizer('Horarios de clases de economía.'),
+            tokenization('Horarios de clases de economía.'),
             ['Horarios', 'de', 'clases', 'de', 'economía', '.' ]
         )
         self.assertEqual(
-            tokenizer('¡Hola!'),
+            tokenization('¡Hola!'),
             ['¡', 'Hola', '!']
         )
 
         self.assertEqual(
-            tokenizer("me alegro, que tal todo?"),
+            tokenization("me alegro, que tal todo?"),
             ['me', 'alegro', ',', 'que', 'tal', 'todo', '?' ]
         )
 
@@ -56,11 +59,36 @@ class QueryUnderstandingTest(unittest.TestCase):
             second= ['En', 'su', 'part', 'de', 'arrib', 'encontr', 'la',  'dond', 'se', 'pued', 'echar', 'el', 'detergent',  'aunqu', 'en', 'nuestr', 'cas', 'lo', 'al', 'ser', 'gel', 'lo', 'pon', 'direct', 'junt', 'con', 'la', 'rop', '.']
 
         )
-
     
+    def test_query_expansion(self):
+        self.assertEqual(
+            first= query_expansion(['días','feriados']),
+            second= ["meses","semanas","dias","mes","semana","laborables","transcurridos","años","horas","transcurridas"]
+        )
+        self.assertEqual(
+            first= query_expansion(['reina','de','inglaterra']),
+            second= ['princesa','reinas','rey','isabel','infanta','consorte','monarca','coronación','infantas','regente']
+        )
+
+    def test_entity_recongnition(self):
+        self.assertEqual(
+            entity_recongnition('carrera de informatica'),
+            'carrera'
+        )
+        self.assertEqual(
+            entity_recongnition('un cuarto de carne'),
+            'carne'
+        )
+    def test_language_detect(self):
+        self.assertEqual(
+            language_detect('carrera de informatica'),
+            'es'
+        )
+        self.assertEqual(
+            language_detect('this is a test'),
+            'en'
+        )
 
         
-        
-
 if __name__ == '__main__':
     unittest.main()

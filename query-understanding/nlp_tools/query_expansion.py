@@ -42,7 +42,7 @@ def query_expansion(texto):
   for word in texto:
     if word in we:
       words_exp += we.most_similar(positive=word)
-  final = [ x[0] for x in words_exp[0:10]]
+  final = [ x[0] for x in words_exp]
   return final
     
 #Classification of sentence
