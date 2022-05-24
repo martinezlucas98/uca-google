@@ -60,21 +60,6 @@ def stemming(input_text: list) -> list:
     stemmer = snowballstemmer.stemmer('spanish')
     return stemmer.stemWords(input_text)
 
-# def lemmatization(input_text):
-#     """Give a sentence
-#     returns the lemmatization of the sentence
-    
-#     e.g:
-#      lemmatization('palabras y perros')
-#      -> ['palabra','y','perro']
-#     """
-#     lemmatizer = WordNetLemmatizer()
-#     words = []
-#     for word in input_text:
-#         word_lem = lemmatizer.lemmatize(word)
-#         words.append(word_lem)
-#     return words
-
 def normalize(input_text):
     #Cleaning
     clean = cleaning(input_text)
