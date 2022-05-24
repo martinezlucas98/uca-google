@@ -42,7 +42,7 @@ def query_expansion(texto):
   for word in texto:
     if word in we:
       words_exp += we.most_similar(positive=word)
-  final = [ x[0] for x in words_exp]
+  final = [ x[0] for x in words_exp[0:10]]
   return final
     
 #Classification of sentence
@@ -93,4 +93,4 @@ def entity_recongnition(texto):
       entity_recongnition('un cuarto de pollo')
         -> 'alimentos'
   """
-  return clases[classification(texto,clases)]
+  return clases[classification(texto,clases)].strip()
