@@ -17,7 +17,7 @@ def language_detect(sentence: str)-> str:
     if sentence.isdecimal() or not sentence:
         return 'unknown'
     language = detect(sentence)
-    if language =='ca' and ca:
+    if language =='ca':
         language = 'es'
     return language
 
