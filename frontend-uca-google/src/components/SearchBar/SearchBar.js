@@ -13,6 +13,7 @@ function SearchBar(){
   const handleSubmit=(e)=>{
     //console.log(value)
     e.preventDefault();
+    //Verificamos que lo que escribio el usuario no sea vacio
     if(value.length != 0){
       router.push({
         pathname: '/results/' + value,

@@ -1,7 +1,7 @@
 
 import styles from './Results.module.css';
 import Link from 'next/link';
-
+//Usamos esta funcion para truncar la "descripcion", en el caso de que sea muy larga
 function truncateString(str, num){
   if(str != null){
     if(str.length > num){
