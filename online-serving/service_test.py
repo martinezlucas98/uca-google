@@ -58,20 +58,20 @@ class SearchTest(unittest.TestCase):
         )
     
     def test_prob_pageRank(self):
-        pages = requests.get(PATH_INDEX + "st?q=curso+ingenieria+informatica").json()
+        pages = requests.get(PATH_INDEX + "st?q=curso+de+testing").json()
         pages = generate_pages(pages)
         ranked_pages = pagerank(pages)
         count = 0.0
         for page in ranked_pages.keys():
             count += ranked_pages[page]
+        count = round(count)
         self.assertEqual(
             first = count == 1.0, 
             second = True
         )
 
     def test_page_not_found(self):
-        # forza: fuerza en italiano
-        results = search("forza")
+        results = search("mbarakaja")
         results = json.loads(results)
 
         results2 = search("karai")
@@ -86,10 +86,10 @@ class SearchTest(unittest.TestCase):
         )
 
     def test_stop_words(self):
-        results = search("de")
+        results = search("que")
         results = json.loads(results)
 
-        results2 = search("que hay en")
+        results2 = search("que hay")
         results2 = json.loads(results2)
         self.assertEqual(
             first = results != None, 
@@ -102,7 +102,7 @@ class SearchTest(unittest.TestCase):
 
 class OnlineServingTest(unittest.TestCase):
     def test_search(self):
-        r = requests.get(PATH_ONLINE + "search?q=curso+ingenieria+informatica").json()
+        r = requests.get(PATH_ONLINE + "search?q=curso+de+testing").json()
         r = json.loads(r)
         self.assertEqual(
             first = r['status'] == "success", 
