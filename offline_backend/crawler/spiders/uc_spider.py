@@ -33,7 +33,7 @@ class UcSpiderSpider(CrawlSpider):
             url_hash = hashlib.md5(str(link_string).encode('utf-8')) #se obtiene el hash de la url 
             url_dict = {
                 "url": str(link_string),
-                "path": os.getcwd() + '/crawler/spiders/uc_data/uc_' + url_hash.hexdigest() + '.json' 
+                "path": os.getcwd() + '/spiders/uc_data/uc_' + url_hash.hexdigest() + '.json' 
             }       #nombre del archivo = uc_[hash de su url].json
             url_list_dict.append(url_dict)
 
