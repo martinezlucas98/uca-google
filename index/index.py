@@ -5,6 +5,7 @@ import os
 import pickle
 import signal
 import string
+import time
 from sys import argv
 from time import sleep
 from typing import Counter
@@ -132,7 +133,7 @@ class GPP_Index:
         if soup.body is not None:
             body_text = soup.body.get_text(' ').strip()
             # normalize accents and remove weird symbols
-            body_text = body_text.translate(body_text.maketrans('', '', '°')) # add more if necessary
+            body_text = body_text.translate(body_text.maketrans('°/', '  ')) # add more if necessary
             body_text = unidecode.unidecode(body_text)
 
             # Tokenize
@@ -163,19 +164,13 @@ class GPP_Index:
             return f"{url} re-indexed (updated)"
         return f"{url} indexed (first time)"
 
-def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = False, force: bool = False, test_dir: str = None):
+def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = False, verbose: bool = False, force: bool = False, test_dir: str = None):
     '''Handles indexing frequency and file handling for the index.
     
     Every time a file is indexed, the index is saved so interrupt signals do not corrupt it.
     To stop if running forever use 'Ctrl+C' or send a SIGTERM using 'kill <PID>'
     
     force = True will cause all already indexed files to be re-indexed unconditionally once.'''
-    
-    # For handling signals while running forever
-    def stop_indexer():
-        print("Indexer stopped")
-        exit(0)
-    signal.signal(signal.SIGTERM, stop_indexer)
     
     # this only exists for testing
     if test_dir is None:
@@ -188,13 +183,36 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
         index_filename = test_dir + '/' + 'test_index.pickle'
     
     index = GPP_Index(dev_index_obj)
+    
+    try:
+        os.remove(dev_index_obj + '~')
+    except:
+        pass
+    try:
+        os.remove(index_filename + '~')
+    except:
+        pass
+
+    def save_index(msg):
+        if msg is not None and msg != '':
+            index.dump(dev_index_obj + '~', self_only=True)
+            os.rename(dev_index_obj + '~', dev_index_obj)
+            index.dump_index(index_filename + '~')
+            os.rename(index_filename + '~', index_filename)
+            if not silent:
+                if verbose: print('\nSaved index with new pages\n' + msg)
+                else: print("\nSaved index")
+    
+    # Optimization: saving once every interval
+    ts = time.time()
+    msg = ''
 
     # Index will save after each file processed
     # This process needs to be safe, so in case a SIGTERM is received the index is not corrupted
     try:
         if not silent:
             print("Indexer running, Ctrl+C to interrupt")
-            if run_forever: print(f"Scanning {scraped_files_dir} every {interval} seconds")
+            if run_forever: print(f"Scanning {scraped_files_dir}, saving index every {interval} seconds")
             else: print(f"Scanning {scraped_files_dir}")
         while True: # I want a DO WHILE style of loop, i.e. run at least once
         # DO
@@ -212,26 +230,37 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
                     links = [link['url'] for link in page['url_links']]
                 except:
                     links = []
-                msg = index.build_index(page['url_html'][0], page['url_self'][0], fetch_ts, links, force)
+                
+                try:
+                    msg += index.build_index(page['url_html'][0], page['url_self'][0], fetch_ts, links, force)
+                    msg += '\n'
+                except: # ignore if None
+                    pass
 
-                # Save index object and index
-                # Any deletions or additions to the index were made in memory, receiving a SIGTERM before this would
-                # not have damaged the index on disk
-                if msg is not None:
-                    index.dump(dev_index_obj + '~', self_only=True)
-                    os.rename(dev_index_obj + '~', dev_index_obj)
-                    index.dump_index(index_filename + '~')
-                    os.rename(index_filename + '~', index_filename)
-                    if not silent: print('\n' + msg)
+                # Optimization: saving once every interval
+                if time.time() - ts >= interval:
+                    # Save index object and index
+                    # Any deletions or additions to the index were made in memory, receiving a SIGTERM before this would
+                    # not have damaged the index on disk
+                    save_index(msg)
+                    msg = ''
+                    ts = time.time()
             
         # WHILE
             if not silent: print()
             if not run_forever:
+                # In case scan finished before interval end
+                save_index(msg)
+                msg = ''
                 break
             force = False
-            sleep(interval)
     except KeyboardInterrupt:
         stop_indexer()
+
+# For handling signals while running forever
+def stop_indexer():
+    print("Indexer stopped")
+    exit(0)
 
 if __name__ == '__main__':
     
@@ -239,6 +268,7 @@ if __name__ == '__main__':
     forever = False
     interval = 5
     silent = False
+    verbose = False
     force = False
     usage_msg = f"Usage: {argv[0]} [--forever] [-t <interval>] [-s] [--force] [-h | --help]"
     if '--forever' in argv:
@@ -253,11 +283,26 @@ if __name__ == '__main__':
             exit(1)
     if '-s' in argv:
         silent = True
+    elif '-v' in argv:
+        verbose = True
     if '-h' in argv or '--help' in argv:
-        print(usage_msg)
+        print(usage_msg + '\n')
+        help_strings = [
+            "   --forever       Runs in a loop, to interrupt use keyboard interrupt (Ctrl+C).",
+            "   --force         Indexes or re-indexes every file, even if it was not changed and can be skipped.",
+            "   -s              Silent mode, no logging. Incompatible with -v and takes priority.",
+            "   -v              Verbose logging. Incompatible with -s.",
+            "   -h  --help      Show this menu and terminate.",
+            "   -t <interval>   Save index at least once every interval of seconds. Default value is 5."
+        ]
+        help_strings.sort()
+        for line in help_strings:
+            print(line)
         exit(0)
     if '--force' in argv:
         force = True
-        
-    run_indexer(forever, interval, silent, force)
+
+    signal.signal(signal.SIGTERM, stop_indexer)
+    
+    run_indexer(forever, interval, silent, verbose, force)
     exit(0)

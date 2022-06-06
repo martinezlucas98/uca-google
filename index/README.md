@@ -10,7 +10,7 @@ Page rank:
 ## Settings
 Various settings for both running the indexer and the server are found in settings.py
 ## Building index
-To run the indexer execute index.py. For usage/help use (from the project root)
+To run the indexer execute index.py (from the project root)
 ```
 $ python index/index.py
 ```
