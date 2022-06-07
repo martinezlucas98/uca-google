@@ -1,0 +1,20 @@
+.search_bar{
+  display: flex;
+  padding-top: 30px;
+  padding-left: 30px;
+}
+
+.results{
+  display: flex;
+  padding-top: 20px;
+  padding-left: 30px;
+
+}
+
+.logo{
+  float: left;
+  width: auto;
+  max-width: 10%;
+  padding-bottom: 20px;
+
+}
