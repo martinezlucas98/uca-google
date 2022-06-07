@@ -3,6 +3,7 @@ import hashlib
 import json
 import os
 import pickle
+import re
 import signal
 import string
 import time
@@ -145,6 +146,8 @@ class GPP_Index:
             # normalize accents and remove weird symbols
             body_text = body_text.translate(body_text.maketrans('°/', '  ')) # add more if necessary
             body_text = unidecode.unidecode(body_text)
+            rex = re.compile(r'\W+')
+            body_text = rex.sub(' ', body_text).lower()
         except:
             body_text = None
         
@@ -168,10 +171,10 @@ class GPP_Index:
         if body_text is not None:
             # Tokenize
             try:
-                tokens = [token.lower().strip(string.punctuation) for token in nltk.word_tokenize(body_text, language='spanish')]
+                tokens = [token for token in nltk.word_tokenize(body_text, language='spanish')]
             except LookupError:
                 nltk.download('punkt')
-                tokens = [token.lower().strip(string.punctuation) for token in nltk.word_tokenize(body_text, language='spanish')]
+                tokens = [token for token in nltk.word_tokenize(body_text, language='spanish')]
             
             # Count tokens
             counts = dict(Counter(tokens))
@@ -233,10 +236,9 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
     # Index will save after each file processed
     # This process needs to be safe, so in case a SIGTERM is received the index is not corrupted
     try:
-        if not silent:
-            print("Indexer running, Ctrl+C to interrupt")
-            if run_forever: print(f"Scanning {scraped_files_dir}, saving index every {interval} seconds")
-            else: print(f"Scanning {scraped_files_dir}")
+        print("Indexer running, Ctrl+C to interrupt")
+        if run_forever: print(f"Scanning {scraped_files_dir}, saving index every {interval} seconds")
+        else: print(f"Scanning {scraped_files_dir}")
         while True: # I want a DO WHILE style of loop, i.e. run at least once
         # DO
             # scan files in scraped_files_dir
@@ -261,7 +263,7 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
                     pass
 
                 # Optimization: saving once every interval
-                if time.time() - ts >= interval:
+                if run_forever and time.time() - ts >= interval:
                     # Save index object and index
                     # Any deletions or additions to the index were made in memory, receiving a SIGTERM before this would
                     # not have damaged the index on disk
