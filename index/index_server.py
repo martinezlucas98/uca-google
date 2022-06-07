@@ -47,11 +47,14 @@ class IndexServer(BaseHTTPRequestHandler):
         Returns whole index as json.'''
         with open(settings.index_filename, 'rb') as file:
             idx = pickle.load(file)
+        with open(settings.indexed_pages_filename, 'rb') as file:
+            pgs = pickle.load(file)
         
+        response = {'tokens': idx, 'pages': pgs}
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        self.wfile.write(bytes('%s' % json.dumps(idx, indent=4), "utf-8"))
+        self.wfile.write(bytes('%s' % json.dumps(response), "utf-8"))
     
     def do_GET_index_search_by_substr(self, paramstr: str):
         '''Searches index for substrings in keys
@@ -60,6 +63,8 @@ class IndexServer(BaseHTTPRequestHandler):
         
         with open(settings.index_filename, 'rb') as file:
             idx = pickle.load(file)
+        with open(settings.indexed_pages_filename, 'rb') as file:
+            pgs = pickle.load(file)
 
         q_param = self.get_parameter('q', paramstr)
         if q_param is None:
@@ -72,12 +77,17 @@ class IndexServer(BaseHTTPRequestHandler):
         sidx = dict([item for item in idx.items() for sstr in substrs if sstr in item[0]])
             # list comprehensions are nice
             # Basically: filters the index for words which contain any of the substrings in substrs
-            #  and makes a new (reduced) dict to return, which is faster than 
+            #  and makes a new (reduced) dict to return, which is faster than a for loop
+        spgs = dict()
+        for token, pages in sidx.items():
+            for page in pages:
+                spgs[page['id']] = pgs[page['id']]
         
+        response = {'tokens': sidx, 'pages': spgs}
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        self.wfile.write(bytes('%s' % json.dumps(sidx, indent=4), "utf-8"))
+        self.wfile.write(bytes('%s' % json.dumps(response), "utf-8"))
 
     def do_GET_index_search_by_initials(self, paramstr: str):
         '''Searches index by words initials
@@ -86,6 +96,8 @@ class IndexServer(BaseHTTPRequestHandler):
         
         with open(settings.index_filename, 'rb') as file:
             idx = pickle.load(file)
+        with open(settings.indexed_pages_filename, 'rb') as file:
+            pgs = pickle.load(file)
 
         q_param = self.get_parameter('q', paramstr)
         if q_param is None:
@@ -93,11 +105,16 @@ class IndexServer(BaseHTTPRequestHandler):
             return
         
         sidx = dict([item for item in idx.items() if item[0][0] in q_param])
-        
+        spgs = dict()
+        for token, pages in sidx.items():
+            for page in pages:
+                spgs[page['id']] = pgs[page['id']]
+
+        response = {'tokens': sidx, 'pages': spgs}
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        self.wfile.write(bytes('%s' % json.dumps(sidx, indent=4), "utf-8"))
+        self.wfile.write(bytes('%s' % json.dumps(response), "utf-8"))
     
     def do_GET_index_search_by_stsubstr(self, paramstr: str):
         '''Searches index for keys starting with the given substrings
@@ -106,6 +123,8 @@ class IndexServer(BaseHTTPRequestHandler):
         
         with open(settings.index_filename, 'rb') as file:
             idx = pickle.load(file)
+        with open(settings.indexed_pages_filename, 'rb') as file:
+            pgs = pickle.load(file)
 
         q_param = self.get_parameter('q', paramstr)
         if q_param is None:
@@ -116,14 +135,16 @@ class IndexServer(BaseHTTPRequestHandler):
         # for queries without '+' split('+') will return a list with one item: the original string
         substrs = q_param.split('+')
         sidx = dict([item for item in idx.items() for sstr in substrs if item[0].startswith(sstr)])
-            # list comprehensions are nice
-            # Basically: filters the index for words which contain any of the substrings in substrs
-            #  and makes a new (reduced) dict to return, which is faster than 
+        spgs = dict()
+        for token, pages in sidx.items():
+            for page in pages:
+                spgs[page['id']] = pgs[page['id']]
         
+        response = {'tokens': sidx, 'pages': spgs}
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        self.wfile.write(bytes('%s' % json.dumps(sidx, indent=4), "utf-8"))
+        self.wfile.write(bytes('%s' % json.dumps(response), "utf-8"))
 
     def do_GET_help(self):
         '''Help page'''
@@ -175,13 +196,23 @@ def start_server(index_fn: str = None, be_quiet: bool = False):
     global quiet 
     quiet = be_quiet
     
+    # Check for file existance
     try:
         with open(settings.index_filename, 'rb') as fd:
             pass
-        print(f"Index '{settings.index_filename}' used")
+        print(f"Word index '{settings.index_filename}' used")
     except FileNotFoundError:
         print(f"Index file at {settings.index_filename} not found.\nAborted", file=sys.stderr)
         exit(1)
+    
+    try:
+        with open(settings.indexed_pages_filename, 'rb') as fd:
+            pass
+        print(f"Page index '{settings.indexed_pages_filename}' used")
+    except FileNotFoundError:
+        print(f"Index file at {settings.indexed_pages_filename} not found.\nAborted", file=sys.stderr)
+        exit(1)
+        
     webServer = HTTPServer((settings.host_name, settings.server_port), IndexServer)
     
     # Terminate process with SIGINT and SIGTERM

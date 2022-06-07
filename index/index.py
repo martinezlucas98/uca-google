@@ -34,6 +34,9 @@ class GPP_Index:
     def __init__(self, pickled_gpp_index: str = None):
         self.index = dict()
         self.indexed_urls = dict() # format = {'https://example.com': 'hash'}
+        # for more space efficient index serving
+        self.pages = dict()
+        self.url_to_id = dict() # format = {'https://example.com': id}
         
         # Load from pickled file
         if pickled_gpp_index is not None:
@@ -45,13 +48,14 @@ class GPP_Index:
             except FileNotFoundError:
                 pass # Only try to load if the file exists
     
-    def add_entry(self, token: str, url: str, count: int, timestamp: float, links: list, title: str, description: str):
+    def add_entry(self, token: str, page_id: int, count: int):
         '''Adds a word's (token) entry with the url of and appearance count in a page.'''
         
         if count <= 0:
             return
         
-        entry = {'url': url, 'count': count, 'date': timestamp, 'title': title, 'description': description, 'links': links}
+        # entry = {'url': url, 'count': count, 'date': timestamp, 'title': title, 'description': description, 'links': links}
+        entry = {'id': page_id, 'count': count}
         # Add new token
         if token not in self.index:
             self.index[token] = [entry]
@@ -62,8 +66,14 @@ class GPP_Index:
         
     def del_page(self, url: str):
         '''Removes all entries associated with a url. May leave empty tokens on the index, call strip() to remove them'''
-        for token, page in [(token, page) for token in self.index for page in self.index[token] if page['url'] == url]:
-            self.index[token].remove(page)
+        try:
+            page_id = self.url_to_id[url]
+            self.pages.pop(page_id)
+            
+            for token, page in [(token, page) for token in self.index for page in self.index[token] if page['id'] == page_id]:
+                self.index[token].remove(page)
+        except KeyError:
+            return
     
     def dump(self, filename: str = settings.dev_index_obj, self_only = False):
         '''Dumps self so it can be updated later.'''
@@ -79,7 +89,7 @@ class GPP_Index:
         if not self_only:
             self.dump_index(no_clean=True)
     
-    def dump_index(self, index_filename: str = settings.index_filename, no_clean: bool = False):
+    def dump_index(self, index_filename: str = settings.index_filename, pages_filename: str = settings.indexed_pages_filename, no_clean: bool = False):
         '''Dumps self.index into a pickled file. Sorts before dumping.
         
         Unpickling will result in a dict, not a GPP_Index object.'''
@@ -88,6 +98,8 @@ class GPP_Index:
             self.sort()
         with open(index_filename, 'wb') as file:
             pickle.dump(self.index, file)
+        with open(pages_filename, 'wb') as file:
+            pickle.dump(self.pages, file)
 
     def sort(self):
         '''Sort pages associated with words by count, and words themselves alphabetically.'''
@@ -128,14 +140,32 @@ class GPP_Index:
         if description is not None:
             description = description['content']
         
-        
-        # No body, no words to index. The head alone is not interesting enough
-        if soup.body is not None:
+        try:
             body_text = soup.body.get_text(' ').strip()
             # normalize accents and remove weird symbols
             body_text = body_text.translate(body_text.maketrans('°/', '  ')) # add more if necessary
             body_text = unidecode.unidecode(body_text)
-
+        except:
+            body_text = None
+        
+        # Store page information
+        try:
+            page_id = max(self.pages) + 1
+        except ValueError:
+            page_id = 1
+        self.pages[page_id] = {
+            'url': url,
+            'date': timestamp,
+            'title': title,
+            'description': description,
+            # links like '/wp...' or '#' get ignored
+            'links': [link for link in links if link.startswith('http')],
+            'content': body_text
+        }
+        self.url_to_id[url] = page_id
+        
+        # No body, no words to index. The head alone is not interesting enough
+        if body_text is not None:
             # Tokenize
             try:
                 tokens = [token.lower().strip(string.punctuation) for token in nltk.word_tokenize(body_text, language='spanish')]
@@ -150,8 +180,7 @@ class GPP_Index:
             for token, count in counts.items():
                 # Check that avoids tokens like ',' being indexed
                 if len([symbol for symbol in token if symbol not in string.punctuation]) > 0:
-                                                            # this means links like '//wp...' or '#' get ignored
-                    self.add_entry(token, url, count, timestamp, [link for link in links if link.startswith('http')], title, description)
+                    self.add_entry(token, page_id, count)
             # No punctuation version, is that needed? NLTK separates most punctuation into its own tokens anyways, easy to filter
 
         # Done, add to list of urls
@@ -177,28 +206,22 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
         scraped_files_dir = settings.scraped_files_dir
         dev_index_obj = settings.dev_index_obj
         index_filename = settings.index_filename
+        indexed_pages = settings.indexed_pages_filename
     else:
         scraped_files_dir = test_dir + '/'
         dev_index_obj = test_dir + '/' + 'test_dev_index.pickle'
         index_filename = test_dir + '/' + 'test_index.pickle'
+        indexed_pages = test_dir + '/' + 'indexed_pages.pickle'
     
     index = GPP_Index(dev_index_obj)
-    
-    try:
-        os.remove(dev_index_obj + '~')
-    except:
-        pass
-    try:
-        os.remove(index_filename + '~')
-    except:
-        pass
 
     def save_index(msg):
         if msg is not None and msg != '':
             index.dump(dev_index_obj + '~', self_only=True)
             os.rename(dev_index_obj + '~', dev_index_obj)
-            index.dump_index(index_filename + '~')
+            index.dump_index(index_filename + '~', indexed_pages + '~')
             os.rename(index_filename + '~', index_filename)
+            os.rename(indexed_pages + '~', indexed_pages)
             if not silent:
                 if verbose: print('\nSaved index with new pages\n' + msg)
                 else: print("\nSaved index")
@@ -234,7 +257,7 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
                 try:
                     msg += index.build_index(page['url_html'][0], page['url_self'][0], fetch_ts, links, force)
                     msg += '\n'
-                except: # ignore if None
+                except TypeError: # ignore if None
                     pass
 
                 # Optimization: saving once every interval
@@ -247,13 +270,18 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
                     ts = time.time()
             
         # WHILE
-            if not silent: print()
+            # In case scan finished before interval end
+            save_index(msg)
+            msg = ''
+            
+            # Stats
+            if not silent:
+                print(f"\nStats:\n\t{len(index.pages)} pages\n\t{len(index.index)} words\n")
+                # print()
             if not run_forever:
-                # In case scan finished before interval end
-                save_index(msg)
-                msg = ''
                 break
             force = False
+    # Handle sigterm
     except KeyboardInterrupt:
         stop_indexer()
 
@@ -270,7 +298,7 @@ if __name__ == '__main__':
     silent = False
     verbose = False
     force = False
-    usage_msg = f"Usage: {argv[0]} [--forever] [-t <interval>] [-s] [--force] [-h | --help]"
+    usage_msg = f"Usage: {argv[0]} [--forever] [-t <interval>] [-s] [-v] [--force] [-h | --help]"
     if '--forever' in argv:
         forever = True
     if '-t' in argv:
@@ -302,6 +330,7 @@ if __name__ == '__main__':
     if '--force' in argv:
         force = True
 
+    # Handle sigterm
     signal.signal(signal.SIGTERM, stop_indexer)
     
     run_indexer(forever, interval, silent, verbose, force)

@@ -22,6 +22,8 @@ When executing the indexer, every dot is a file scanned. If no dots appear and t
 From the project root (*settings.py contains hostname and port settings, change them as needed*):
 ```
 $ python index/index_server.py
+Word index 'index/indices/index.pickle' used
+Page index 'index/indices/indexed_pages.pickle' used
 Server started http://localhost:8080
 PID: 1234
 
@@ -54,22 +56,24 @@ These results are a subset of the full index, allowing faster searching and flex
 
 An example on how to access this result:
 ```python
-# Requests example (pip install requests)
+# Requests example ($ pip install requests)
 import requests
 
-r = requests.get('http://localhost:8080/st?q=query')
+r = requests.get('http://localhost:8080/st?q=catolicas')
 if r.status_code == 200:
-    index = r.json()    # the json contents can be easily translated into a dict
+    robj = r.json() # the json contents can be easily translated into a dict
+    index = robj['tokens']
+    page_index = robj['pages']
     print(type(index))
     print(index)
     print()
 
     # Iterate through words (tokens)
-    for token in list(index.keys()):
+    for token in index:
         print(token + ':')
         # Iterate through pages where the token appears
         for item in index[token]:
-            print("    {}: {}".format(item['url'], item['count']))
+            print("    {}: {}".format(page_index[str(item['id'])]['url'], item['count']))
 ```
 
 ## Unittest
