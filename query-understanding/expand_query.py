@@ -1,6 +1,5 @@
 from text_normalization import  normalize
-from nlp_tools.named_entity import get_entity
-from nlp_tools.part_of_speech import get_part_of_speech
+
 from nlp_tools.lang_detect import language_detect
 from nlp_tools.query_expansion import query_expansion, entity_recongnition
 
@@ -26,8 +25,8 @@ def expand_query(sentence:str) -> dict :
     #part_of_speech = get_part_of_speech(corrected_sentence)
 
     
-    response['corrected_sentence'] = corrected_sentence
-    response['language'] = language
+    response['corrected_sentence'] = (' ').join(corrected_sentence)
+    response['language'] = 'spanish' #language
     response['stemmed_tokens'] = stemmed_tokens
     response['lemmatized_tokens'] = lemmatized_tokens
     response['classification'] = classification

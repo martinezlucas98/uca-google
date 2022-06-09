@@ -1,0 +1,39 @@
+.container{
+  width: 1000px;
+  height: 200px;
+  margin: 10px 10px 50px;
+  display: flex;
+  background-color: #fff;
+  box-shadow: 0 3px 13px 1px rgb(0 0 0 / 9%);
+  border-radius: 10px;
+}
+
+.title{
+  font-size: 1.3rem;
+  padding-left: 10px;
+}
+.link{
+  font-size: 1.3rem;
+  padding-left: 10px;
+}
+
+.description{
+  font-size: 1.1rem;
+  text-align: justify;
+  padding-left: 10px;
+}
+
+.buttonPrev{
+  margin-right: 10px;
+}
+
+.buttons{
+  margin-left: 15px;
+
+}
+
+.logo{
+  
+   float: left
+  
+}

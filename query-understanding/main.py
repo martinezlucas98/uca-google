@@ -14,6 +14,10 @@ def read_root():
 ## Soporta parametros como "/expand_query?q=hola%20Google"
 @app.get("/expand_query")
 def expand_query_route( q: Optional[str] = None):
+    """Given an argument 'q' that will be a string,
+    this should return a dictionary with attributes
+    that will help in the search
+    """
     
     # if the user send a empty argument
     if not q:

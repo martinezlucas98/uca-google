@@ -12,7 +12,7 @@ import zlib
 
 VECT_URL = 'http://dcc.uchile.cl/~jperez/word-embeddings/fasttext-sbwc.100k.vec.gz'
 
-
+# Si el dataset no tenmos descargado, entonces descarga
 if not os.path.exists('dataset/fasttext-sbwc.100k.vec'):
   print("Downloading fasttext-sbwc.100k.vec.gz ......")
   print("This should only happen once")
