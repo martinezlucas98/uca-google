@@ -4,6 +4,8 @@ from fastapi import FastAPI
 
 from expand_query import expand_query 
 
+from nlp_tools.autocomplete import autocomplete_gpp
+
 app = FastAPI()
 
 
@@ -32,7 +34,7 @@ def expand_query_route( q: Optional[str] = None):
 
 
 @app.get("/autocomplete")
-def autocomplete( q: Optional[str] = None):
+def autocomplete( q: Optional[str] = ''):
     """Given an argument 'q' that will be a string,
     this should return a list of a autocompletes options.
 
@@ -41,6 +43,11 @@ def autocomplete( q: Optional[str] = None):
         q = 'horarios d -> ['horarios de clases', 'horarios de caja', horarios de cantina']
          
     """
-    return {"autocompletes": [q + ' example1']} 
+    results = autocomplete_gpp(sentence= q)
+    response = {
+        'status': 'ok',
+        'autocompletes': results
+    }
+    return response
 
 
