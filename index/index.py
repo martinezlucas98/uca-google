@@ -18,11 +18,11 @@ from bs4 import BeautifulSoup
 import settings
 
 
-def page_count(page):
-    '''Auxiliary function for sorting pages in the index
+# def page_count(page):
+#     '''Auxiliary function for sorting pages in the index
     
-    Usage: page.sort(key=page_count)'''
-    return page['count']
+#     Usage: page.sort(key=page_count)'''
+#     return page['count']
 
 class GPP_Index:
     '''Index object with an actual dictionary as the centerpiece and additional methods for building it.
@@ -56,14 +56,12 @@ class GPP_Index:
             return
         
         # entry = {'url': url, 'count': count, 'date': timestamp, 'title': title, 'description': description, 'links': links}
-        entry = {'id': page_id, 'count': count}
         # Add new token
         if token not in self.index:
-            self.index[token] = [entry]
-        # Or add to existing token
-        else:
-            # Updates will involve deleting entries, so repeated entries should not happen
-            self.index[token].append(entry)
+            self.index[token] = {}
+        # And add page_id to token
+        # Updates will involve deleting entries, so repeated entries should not happen
+        self.index[token][page_id] = count
         
     def del_page(self, url: str):
         '''Removes all entries associated with a url. May leave empty tokens on the index, call strip() to remove them'''
@@ -71,15 +69,15 @@ class GPP_Index:
             page_id = self.url_to_id[url]
             self.pages.pop(page_id)
             
-            for token, page in [(token, page) for token in self.index for page in self.index[token] if page['id'] == page_id]:
-                self.index[token].remove(page)
+            for token, page in [(token, page) for token in self.index for page in self.index[token] if page == page_id]:
+                self.index[token].pop(page)
         except KeyError:
             return
     
     def dump(self, filename: str = settings.dev_index_obj, self_only = False):
         '''Dumps self so it can be updated later.'''
         self.strip()
-        self.sort()
+        # self.sort()
         try:
             with open(filename, 'wb') as file:
                 pickle.dump(self, file)
@@ -96,18 +94,18 @@ class GPP_Index:
         Unpickling will result in a dict, not a GPP_Index object.'''
         if not no_clean:
             self.strip()
-            self.sort()
+            # self.sort()
         with open(index_filename, 'wb') as file:
             pickle.dump(self.index, file)
         with open(pages_filename, 'wb') as file:
             pickle.dump(self.pages, file)
 
-    def sort(self):
-        '''Sort pages associated with words by count, and words themselves alphabetically.'''
-        for token, page in self.index.items():
-            page.sort(key=page_count, reverse=True)
-        # convert dict to list of (token, pages) tuples, sort (this will use token), and convert back to dict before returning
-        self.index = dict(sorted(list(self.index.items())))
+    # def sort(self):
+    #     '''Sort pages associated with words by count, and words themselves alphabetically.'''
+    #     for token, page in self.index.items():
+    #         page.sort(key=page_count, reverse=True)
+    #     # convert dict to list of (token, pages) tuples, sort (this will use token), and convert back to dict before returning
+    #     self.index = dict(sorted(list(self.index.items())))
     
     def strip(self):
         '''Removes words without entries.'''
@@ -142,14 +140,14 @@ class GPP_Index:
             description = description['content']
         
         try:
-            body_text = soup.body.get_text(' ').strip()
+            page_text = soup.get_text(' ').strip()
             # normalize accents and remove weird symbols
-            body_text = body_text.translate(body_text.maketrans('°/', '  ')) # add more if necessary
-            body_text = unidecode.unidecode(body_text)
+            page_text = page_text.translate(page_text.maketrans('°/', '  ')) # add more if necessary
+            page_text = unidecode.unidecode(page_text)
             rex = re.compile(r'\W+')
-            body_text = rex.sub(' ', body_text).lower()
+            page_text = rex.sub(' ', page_text).lower()
         except:
-            body_text = None
+            page_text = None
         
         # Store page information
         try:
@@ -163,18 +161,18 @@ class GPP_Index:
             'description': description,
             # links like '/wp...' or '#' get ignored
             'links': [link for link in links if link.startswith('http')],
-            'content': body_text
+            'content': page_text
         }
         self.url_to_id[url] = page_id
         
         # No body, no words to index. The head alone is not interesting enough
-        if body_text is not None:
+        if page_text is not None:
             # Tokenize
             try:
-                tokens = [token for token in nltk.word_tokenize(body_text, language='spanish')]
+                tokens = [token for token in nltk.word_tokenize(page_text, language='spanish')]
             except LookupError:
                 nltk.download('punkt')
-                tokens = [token for token in nltk.word_tokenize(body_text, language='spanish')]
+                tokens = [token for token in nltk.word_tokenize(page_text, language='spanish')]
             
             # Count tokens
             counts = dict(Counter(tokens))
@@ -237,8 +235,7 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
     # This process needs to be safe, so in case a SIGTERM is received the index is not corrupted
     try:
         print("Indexer running, Ctrl+C to interrupt")
-        if run_forever: print(f"Scanning {scraped_files_dir}, saving index every {interval} seconds")
-        else: print(f"Scanning {scraped_files_dir}")
+        print(f"Scanning {scraped_files_dir}, saving index every {interval} seconds")
         while True: # I want a DO WHILE style of loop, i.e. run at least once
         # DO
             # scan files in scraped_files_dir
@@ -256,14 +253,13 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
                 except:
                     links = []
                 
-                try:
-                    msg += index.build_index(page['url_html'][0], page['url_self'][0], fetch_ts, links, force)
-                    msg += '\n'
-                except TypeError: # ignore if None
-                    pass
+                msg_ = index.build_index(page['url_html'][0], page['url_self'][0], fetch_ts, links, force)
+                if msg_ is not None:
+                    msg += msg_
+                msg += '\n'
 
                 # Optimization: saving once every interval
-                if run_forever and time.time() - ts >= interval:
+                if time.time() - ts >= interval:
                     # Save index object and index
                     # Any deletions or additions to the index were made in memory, receiving a SIGTERM before this would
                     # not have damaged the index on disk
@@ -321,7 +317,7 @@ if __name__ == '__main__':
             "   --forever       Runs in a loop, to interrupt use keyboard interrupt (Ctrl+C).",
             "   --force         Indexes or re-indexes every file, even if it was not changed and can be skipped.",
             "   -s              Silent mode, no logging. Incompatible with -v and takes priority.",
-            "   -v              Verbose logging. Incompatible with -s.",
+            "   -v              Verbose logging. Ignored when -s is used.",
             "   -h  --help      Show this menu and terminate.",
             "   -t <interval>   Save index at least once every interval of seconds. Default value is 5."
         ]

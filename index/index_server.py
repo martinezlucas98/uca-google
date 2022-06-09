@@ -1,17 +1,37 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import os
 import pickle
-from signal import SIGTERM, signal
 import sys
+import zlib
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from signal import SIGTERM, signal
 
 import settings
+
 
 class IndexServer(BaseHTTPRequestHandler):
     def log_message(self, format: str, *args):
         global quiet
         if not quiet:
             return super().log_message(format, *args)
+    
+    def send_json(self, object):
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(bytes('%s' % json.dumps(object), "utf-8"))
+    
+    def send_compressed_json(self, object):
+        self.send_response(200)
+        self.send_header("Content-type", "application/blob")
+        self.end_headers()
+        self.wfile.write(zlib.compress(bytes(json.dumps(object), "utf-8"), 3))
+    
+    def send_binary(self, object):
+        self.send_response(200)
+        self.send_header("Content-type", "application/blob")
+        self.end_headers()
+        self.wfile.write(pickle.dumps(object))
     
     def do_GET(self):
         pathstring, nil, paramstring = self.path.rstrip("/").partition('?')
@@ -27,6 +47,21 @@ class IndexServer(BaseHTTPRequestHandler):
             return
         elif pathstring == '/st':
             self.do_GET_index_search_by_stsubstr(paramstring)
+            return
+        elif pathstring == '/stc':
+            self.do_GET_index_search_by_stsubstr(paramstring, send_type='deflate')
+            return
+        elif pathstring == '/sts':
+            self.do_GET_index_search_by_stsubstr(paramstring, send_type='pickle')
+            return
+        elif pathstring == '/lit':
+            self.do_GET_index_search_by_literal(paramstring)
+            return
+        elif pathstring == '/litc':
+            self.do_GET_index_search_by_literal(paramstring, send_type='deflate')
+            return
+        elif pathstring == '/lits':
+            self.do_GET_index_search_by_literal(paramstring, send_type='pickle')
             return
         elif pathstring == '/help':
             self.do_GET_help()
@@ -45,26 +80,27 @@ class IndexServer(BaseHTTPRequestHandler):
     def do_GET_index(self):
         '''Inefficient!
         Returns whole index as json.'''
-        with open(settings.index_filename, 'rb') as file:
-            idx = pickle.load(file)
-        with open(settings.indexed_pages_filename, 'rb') as file:
-            pgs = pickle.load(file)
+        # with open(settings.index_filename, 'rb') as file:
+        #     idx = pickle.load(file)
+        idx = tok_idx
+        # with open(settings.indexed_pages_filename, 'rb') as file:
+        #     pgs = pickle.load(file)
+        pgs = page_idx
         
         response = {'tokens': idx, 'pages': pgs}
-        self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.end_headers()
-        self.wfile.write(bytes('%s' % json.dumps(response), "utf-8"))
+        self.send_json(response)
     
     def do_GET_index_search_by_substr(self, paramstr: str):
         '''Searches index for substrings in keys
         
         Search substrings with "q=substr[+more+substrings]"'''
         
-        with open(settings.index_filename, 'rb') as file:
-            idx = pickle.load(file)
-        with open(settings.indexed_pages_filename, 'rb') as file:
-            pgs = pickle.load(file)
+        # with open(settings.index_filename, 'rb') as file:
+        #     idx = pickle.load(file)
+        idx = tok_idx
+        # with open(settings.indexed_pages_filename, 'rb') as file:
+        #     pgs = pickle.load(file)
+        pgs = page_idx
 
         q_param = self.get_parameter('q', paramstr)
         if q_param is None:
@@ -84,20 +120,19 @@ class IndexServer(BaseHTTPRequestHandler):
                 spgs[page['id']] = pgs[page['id']]
         
         response = {'tokens': sidx, 'pages': spgs}
-        self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.end_headers()
-        self.wfile.write(bytes('%s' % json.dumps(response), "utf-8"))
+        self.send_json(response)
 
     def do_GET_index_search_by_initials(self, paramstr: str):
         '''Searches index by words initials
         
         Search with "q=[char o chars]", e.g. q=apb'''
         
-        with open(settings.index_filename, 'rb') as file:
-            idx = pickle.load(file)
-        with open(settings.indexed_pages_filename, 'rb') as file:
-            pgs = pickle.load(file)
+        # with open(settings.index_filename, 'rb') as file:
+        #     idx = pickle.load(file)
+        idx = tok_idx
+        # with open(settings.indexed_pages_filename, 'rb') as file:
+        #     pgs = pickle.load(file)
+        pgs = page_idx
 
         q_param = self.get_parameter('q', paramstr)
         if q_param is None:
@@ -111,40 +146,79 @@ class IndexServer(BaseHTTPRequestHandler):
                 spgs[page['id']] = pgs[page['id']]
 
         response = {'tokens': sidx, 'pages': spgs}
-        self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.end_headers()
-        self.wfile.write(bytes('%s' % json.dumps(response), "utf-8"))
+        self.send_json(response)
     
-    def do_GET_index_search_by_stsubstr(self, paramstr: str):
+    def do_GET_index_search_by_stsubstr(self, paramstr: str, send_type='json'):
         '''Searches index for keys starting with the given substrings
         
         Search substrings with "q=substr[+more+substrs]"'''
         
-        with open(settings.index_filename, 'rb') as file:
-            idx = pickle.load(file)
-        with open(settings.indexed_pages_filename, 'rb') as file:
-            pgs = pickle.load(file)
+        # with open(settings.index_filename, 'rb') as file:
+        #     idx = pickle.load(file)
+        idx = tok_idx
+        # with open(settings.indexed_pages_filename, 'rb') as file:
+        #     pgs = pickle.load(file)
+        pgs = page_idx
 
         q_param = self.get_parameter('q', paramstr)
         if q_param is None:
             self.send_error(400, explain='Expected query parameter, e.g. ?q=example')
             return
         
-        # '+' denotes spaces: "test string" => "test+string"
+        # '+' denotes spaces: "test+string" => "test string"
         # for queries without '+' split('+') will return a list with one item: the original string
         substrs = q_param.split('+')
         sidx = dict([item for item in idx.items() for sstr in substrs if item[0].startswith(sstr)])
-        spgs = dict()
+        spgs = {}
         for token, pages in sidx.items():
-            for page in pages:
-                spgs[page['id']] = pgs[page['id']]
+            for id in pages:
+                spgs[id] = pgs[id]
         
         response = {'tokens': sidx, 'pages': spgs}
-        self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.end_headers()
-        self.wfile.write(bytes('%s' % json.dumps(response), "utf-8"))
+        if send_type == 'deflate':
+            self.send_compressed_json(response)
+        elif send_type == 'pickle':
+            self.send_binary(response)
+        elif send_type == 'json':
+            self.send_json(response)
+
+    def do_GET_index_search_by_literal(self, paramstr: str, send_type='json'):
+        '''Searches index for exact matches, and returns pages with all words in their text
+        
+        Search literals with "q=word[+more+words]"'''
+        
+        # with open(settings.index_filename, 'rb') as file:
+        #     idx = pickle.load(file)
+        idx = tok_idx
+        # with open(settings.indexed_pages_filename, 'rb') as file:
+        #     pgs = pickle.load(file)
+        pgs = page_idx
+
+        q_param = self.get_parameter('q', paramstr)
+        if q_param is None:
+            self.send_error(400, explain='Expected query parameter, e.g. ?q=example')
+            return
+        
+        # '+' denotes spaces: "test+string" => "test string"
+        # for queries without '+' split('+') will return a list with one item: the original string
+        words = q_param.split('+')
+        sidx = dict([item for item in idx.items() for word in words if item[0] == word])
+        spgs = {}
+        for token, pages in sidx.items():
+            for id in pages:
+                good = True
+                for word in words:
+                    if good and word not in pgs[id]['content']:
+                        good = False
+                if good: spgs[id] = pgs[id]
+        
+        response = {'tokens': sidx, 'pages': spgs}
+        if send_type == 'deflate':
+            self.send_compressed_json(response)
+        elif send_type == 'pickle':
+            self.send_binary(response)
+        elif send_type == 'json':
+            self.send_json(response)
 
     def do_GET_help(self):
         '''Help page'''
@@ -179,7 +253,7 @@ class IndexServer(BaseHTTPRequestHandler):
     def get_parameter(self, param: str, paramstr: str):
         '''Returns the value for the requested parameter, None if not found.
         
-        Example paramstr: "key=value&key1=value1"'''
+        Example paramstr: "<key>=<value>&<key1>=<value1>"'''
         
         params = paramstr.split('&')
         
@@ -195,11 +269,14 @@ class IndexServer(BaseHTTPRequestHandler):
 def start_server(index_fn: str = None, be_quiet: bool = False):
     global quiet 
     quiet = be_quiet
+
+    global tok_idx
+    global page_idx
     
-    # Check for file existance
+    # Load indices, they will be in memory
     try:
         with open(settings.index_filename, 'rb') as fd:
-            pass
+            tok_idx = pickle.load(fd)
         print(f"Word index '{settings.index_filename}' used")
     except FileNotFoundError:
         print(f"Index file at {settings.index_filename} not found.\nAborted", file=sys.stderr)
@@ -207,7 +284,7 @@ def start_server(index_fn: str = None, be_quiet: bool = False):
     
     try:
         with open(settings.indexed_pages_filename, 'rb') as fd:
-            pass
+            page_idx = pickle.load(fd)
         print(f"Page index '{settings.indexed_pages_filename}' used")
     except FileNotFoundError:
         print(f"Index file at {settings.indexed_pages_filename} not found.\nAborted", file=sys.stderr)
