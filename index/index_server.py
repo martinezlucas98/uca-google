@@ -117,7 +117,7 @@ class IndexServer(BaseHTTPRequestHandler):
         spgs = dict()
         for token, pages in sidx.items():
             for page in pages:
-                spgs[page['id']] = pgs[page['id']]
+                spgs[page] = pgs[page]
         
         response = {'tokens': sidx, 'pages': spgs}
         self.send_json(response)
@@ -143,7 +143,7 @@ class IndexServer(BaseHTTPRequestHandler):
         spgs = dict()
         for token, pages in sidx.items():
             for page in pages:
-                spgs[page['id']] = pgs[page['id']]
+                spgs[page] = pgs[page]
 
         response = {'tokens': sidx, 'pages': spgs}
         self.send_json(response)
@@ -161,6 +161,7 @@ class IndexServer(BaseHTTPRequestHandler):
         pgs = page_idx
 
         q_param = self.get_parameter('q', paramstr)
+        nolink = self.get_parameter('nolink', paramstr)
         if q_param is None:
             self.send_error(400, explain='Expected query parameter, e.g. ?q=example')
             return
@@ -172,7 +173,11 @@ class IndexServer(BaseHTTPRequestHandler):
         spgs = {}
         for token, pages in sidx.items():
             for id in pages:
-                spgs[id] = pgs[id]
+                if nolink:
+                    spgs[id] = pgs[id].copy()
+                    spgs[id].pop('links', None)
+                else:
+                    spgs[id] = pgs[id]
         
         response = {'tokens': sidx, 'pages': spgs}
         if send_type == 'deflate':
@@ -195,6 +200,7 @@ class IndexServer(BaseHTTPRequestHandler):
         pgs = page_idx
 
         q_param = self.get_parameter('q', paramstr)
+        nolink = self.get_parameter('nolink', paramstr)
         if q_param is None:
             self.send_error(400, explain='Expected query parameter, e.g. ?q=example')
             return
@@ -210,7 +216,12 @@ class IndexServer(BaseHTTPRequestHandler):
                 for word in words:
                     if good and word not in pgs[id]['content']:
                         good = False
-                if good: spgs[id] = pgs[id]
+                if good:
+                    if nolink:
+                        spgs[id] = pgs[id].copy()
+                        spgs[id].pop('links', None)
+                    else:
+                        spgs[id] = pgs[id]
         
         response = {'tokens': sidx, 'pages': spgs}
         if send_type == 'deflate':
@@ -261,7 +272,10 @@ class IndexServer(BaseHTTPRequestHandler):
             for p in params:
                 key, value = p.split('=')
                 if key == param:
-                    return value
+                    try:
+                        return int(value)
+                    except:
+                        return value
             return None
         except ValueError:
             return None
