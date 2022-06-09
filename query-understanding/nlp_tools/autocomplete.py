@@ -13,14 +13,11 @@ def autocomplete_gpp(sentence = ''):
     # client param could be replaced with firefox or other browser
     url = "https://scholar.google.com/scholar_complete?q=" + sentence + "&hl=es&as_sdt=0%2C5&btnG="
     response = requests.get(url, headers=headers)
-    # print(response.text)
-    # print( json.loads(response.text))
+
 
     return json.loads(response.text)['l']
     
-    # response = requests.get('http://google.com/complete/search?client=chrome&q=minecraft is better than', headers=headers)
-    # for result in json.loads(response.text)[1]:
-    #     print(result)
+   
 
 if __name__ == "__main__":
     print(autocomplete_gpp(sentence="hola"))
