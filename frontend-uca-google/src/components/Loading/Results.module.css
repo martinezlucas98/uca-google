@@ -1,0 +1,46 @@
+.container{
+  width: 1000px;
+  height: 200px;
+  margin: 10px 10px 50px;
+  display: flex;
+  background-color: #fff;
+  box-shadow: 0 3px 13px 1px rgb(0 0 0 / 9%);
+  border-radius: 10px;
+}
+
+.title{
+ 
+  height: 20px;
+ 
+ 
+}
+.link{
+  border: 1px solid black;
+  width: 100px;
+  height: 20px;
+  background-color: gray;
+  margin: 15px 15px;
+}
+
+.description{
+  border: 1px solid black;
+  width: 500px;
+  height: 40px;
+  background-color: gray;
+  margin: 15px 15px;
+}
+
+.buttonPrev{
+  margin-right: 10px;
+}
+
+.buttons{
+  margin-left: 15px;
+
+}
+
+.logo{
+  
+   float: left
+  
+}

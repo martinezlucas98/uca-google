@@ -16,7 +16,7 @@ function SearchBar(){
     //Verificamos que lo que escribio el usuario no sea vacio
     if(value.length != 0){
       router.push({
-        pathname: '/results/' + value,
+        pathname: '/loading/results',
         query: {q:value}
       })
     }
