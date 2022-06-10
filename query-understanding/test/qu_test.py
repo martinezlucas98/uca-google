@@ -64,7 +64,10 @@ class QueryUnderstandingTest(unittest.TestCase):
             second=['12', '']
         )
         self.assertEqual(
-            first= stemming(['En', 'su', 'parte', 'de', 'arriba', 'encontramos', 'la', 'donde', 'se', 'puede', 'echar', 'el', 'detergente', 'aunque', 'en', 'nuestro', 'caso', 'lo', 'al', 'ser', 'gel', 'lo', 'ponemos', 'directamente', 'junto', 'con', 'la', 'ropa','.']),
+            first= stemming(
+                ['En', 'su', 'parte', 'de', 'arriba', 'encontramos', 'la', 'donde', 'se', 'puede', 'echar', 'el', 'detergente', 'aunque', 'en', 'nuestro', 'caso', 'lo', 'al', 'ser', 'gel', 'lo', 'ponemos', 'directamente', 'junto', 'con', 'la', 'ropa','.'],
+                lang='es'
+                ),
             second= ['En', 'su', 'part', 'de', 'arrib', 'encontr', 'la',  'dond', 'se', 'pued', 'echar', 'el', 'detergent',  'aunqu', 'en', 'nuestr', 'cas', 'lo', 'al', 'ser', 'gel', 'lo', 'pon', 'direct', 'junt', 'con', 'la', 'rop', '.']
         )
         
@@ -92,7 +95,9 @@ class QueryUnderstandingTest(unittest.TestCase):
     
     def test_lemmatization_spacy(self):
         self.assertEqual(
-            first= lemmatizer(['12','','hablando', 'jugando', 'jugar', 'comiendo', 'horarios', 'personas', 'ideas', 'cosas', 'yendo']),
+            first= lemmatizer(['12','','hablando', 'jugando', 'jugar', 'comiendo', 'horarios', 'personas', 'ideas', 'cosas', 'yendo'],
+            lang='es'
+            ),
             second= ['12',' ','hablar', 'jugar', 'jugar', 'comer', 'horario', 'persona', 'idea', 'cosa','ir']
         )
 

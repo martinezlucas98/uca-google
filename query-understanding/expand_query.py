@@ -24,7 +24,7 @@ def expand_query(sentence:str) -> dict :
 
     # if the sentence enter is not a something like url, only_digits or not detected language -> call function that use a language
     if lang_detected != 'unknow':
-        clean, stemmed_tokens, lemmatized_tokens, corrected_sentence = normalize(sentence)
+        clean, stemmed_tokens, lemmatized_tokens, corrected_sentence = normalize(sentence, lang=lang_detected)
         classification = entity_recongnition(clean)
         query_expan = query_expansion(corrected_sentence)
        
