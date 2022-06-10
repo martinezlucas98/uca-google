@@ -10,3 +10,5 @@ indexed_pages_filename = "index/indices/indexed_pages.pickle"
 scraped_files_dir = "offline_backend/crawler/spiders/uc_data/" # obligatory trailing '/'!
 # Index for building offline
 dev_index_obj = "index/indices/dev_index.pickle"
+# Description length shown in search results
+description_len = 100

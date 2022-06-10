@@ -137,16 +137,16 @@ class GPP_Index:
         if description is None:
             description = soup.find('meta', {'name':'Description'})
         if description is not None:
-            description = description['content']
+            description = description['content'][:settings.description_len]
         # No UC pages have a meta description tag, but the feature is there just in case one eventually does
         # Else, take the first bit of the body text
         else:
             try:
-                description = soup.body.find_next('p').get_text(' ', strip=True)[0:50]
+                description = soup.body.find('p').text.strip()[:settings.description_len]
                 if len(description) == 0:
                     description.erroneous
             except AttributeError:
-                description = soup.get_text(' ', strip=True)[0:50]
+                description = soup.get_text(' ', strip=True)[:settings.description_len]
         
         try:
             page_text = soup.get_text(' ', strip=True)
