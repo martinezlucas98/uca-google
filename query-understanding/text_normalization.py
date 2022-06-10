@@ -21,8 +21,8 @@ from nlp_tools.lemmatization import lemmatizer
         2. Tokenization
         3. Stemming & Lemmatization
 '''
+ 
 
-spanish = SpellChecker(language='es')  # use the Spanish Dictionary for spell checker
 
 def cleaning(input_text):
     """Give a sentence
@@ -48,7 +48,7 @@ def tokenization(input_text):
     return word_token
 
 # Stemming del texto no estructurado, utilizando un diccionario de palabras
-def stemming(input_text: list) -> list:
+def stemming(input_text: list, lang='es') -> list:
     """Give a sentence
     returns the stemming of the sentence
     
@@ -56,22 +56,33 @@ def stemming(input_text: list) -> list:
      stemming('palabras y perros')
      -> ['palabr','y','perr']
     """
-    stemmer = snowballstemmer.stemmer('spanish')
+
+    if lang == 'en':    
+        stemmer = snowballstemmer.stemmer('english')
+    else:
+        stemmer = snowballstemmer.stemmer('spanish')
+
     return stemmer.stemWords(input_text)
 
-def normalize(input_text):
+def normalize(input_text, lang='es'):
+
+    if lang =='en':
+        spell_checker_by_language = SpellChecker() # The default is English
+    else:
+        spell_checker_by_language = SpellChecker(language='es')
+        
     #Cleaning
     clean = cleaning(input_text)
     #Tokenize
     tokenize = tokenization(clean)
     #Correct typos
-    spell_check_sentence = [spanish.correction(token) for token in tokenize]
+    spell_check_sentence = [spell_checker_by_language.correction(token) for token in tokenize]
     #Remove stopwords( 'de', 'la', 'del')
     tokenize = remove_stopwords(spell_check_sentence)
     #Stemming
-    stem = stemming(tokenize)
+    stem = stemming(tokenize, lang)
     #Lemmatization
-    lem = lemmatizer(tokenize)
+    lem = lemmatizer(tokenize, lang)
     
     return clean, stem, lem, spell_check_sentence
 

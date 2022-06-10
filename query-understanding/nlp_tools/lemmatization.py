@@ -1,6 +1,6 @@
 import spacy
 
-def lemmatizer(words: list)-> list:
+def lemmatizer(words: list, lang='es')-> list:
     """Give a list of words 
     and return a list of lemmatized words 
 
@@ -14,10 +14,13 @@ def lemmatizer(words: list)-> list:
     
     sentence = (' ').join(words)
     
-    nlp = spacy.load('es_core_news_sm')
+    if lang == "en":
+        nlp = spacy.load('en_core_web_sm')
+    else:
+        nlp = spacy.load('es_core_news_sm')
     doc = nlp(sentence)
     lemmatized = [w.lemma_ for w in doc]
     return lemmatized
 
 if __name__ == '__main__':
-    print(lemmatizer(['haciendo','tarea', 'hablamos'] ))
+    print(lemmatizer(['doing','tarea', 'hablamos'], 'en' ))
