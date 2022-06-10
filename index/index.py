@@ -138,9 +138,18 @@ class GPP_Index:
             description = soup.find('meta', {'name':'Description'})
         if description is not None:
             description = description['content']
+        # No UC pages have a meta description tag, but the feature is there just in case one eventually does
+        # Else, take the first bit of the body text
+        else:
+            try:
+                description = soup.body.find_next('p').get_text(' ', strip=True)[0:50]
+                if len(description) == 0:
+                    description.erroneous
+            except AttributeError:
+                description = soup.get_text(' ', strip=True)[0:50]
         
         try:
-            page_text = soup.get_text(' ').strip()
+            page_text = soup.get_text(' ', strip=True)
             # normalize accents and remove weird symbols
             page_text = page_text.translate(page_text.maketrans('°/', '  ')) # add more if necessary
             page_text = unidecode.unidecode(page_text)
