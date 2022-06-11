@@ -263,7 +263,7 @@ class IndexServer(BaseHTTPRequestHandler):
                 respectively, e.g. /stc, /lits<br><br>", "utf-8"))
         
         self.wfile.write(bytes("Parameters:<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;q=<search>[+<more>+<words>]<br>", "utf-8"))
+        self.wfile.write(bytes("&emsp;q=&ltsearch&gt[+&ltmore&gt+&ltwords&gt]<br>", "utf-8"))
         self.wfile.write(bytes("&emsp;nolist=1 (optional)<br>", "utf-8"))
         self.wfile.write(bytes("&emsp;f=[and | or] (default=and)<br><br>", "utf-8"))
         
