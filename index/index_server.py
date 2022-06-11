@@ -40,13 +40,16 @@ class IndexServer(BaseHTTPRequestHandler):
             self.do_GET_index()
             return
         elif pathstring == '/subs':
-            self.do_GET_index_search_by_substr(paramstring)
+            self.do_GET_index_search_by_substr(paramstring, send_type='json')
             return
-        elif pathstring == '/i':
-            self.do_GET_index_search_by_initials(paramstring)
+        elif pathstring == '/subsc':
+            self.do_GET_index_search_by_substr(paramstring, send_type='deflate')
+            return
+        elif pathstring == '/subss':
+            self.do_GET_index_search_by_substr(paramstring, send_type='pickle')
             return
         elif pathstring == '/st':
-            self.do_GET_index_search_by_stsubstr(paramstring)
+            self.do_GET_index_search_by_stsubstr(paramstring, send_type='json')
             return
         elif pathstring == '/stc':
             self.do_GET_index_search_by_stsubstr(paramstring, send_type='deflate')
@@ -55,7 +58,7 @@ class IndexServer(BaseHTTPRequestHandler):
             self.do_GET_index_search_by_stsubstr(paramstring, send_type='pickle')
             return
         elif pathstring == '/lit':
-            self.do_GET_index_search_by_literal(paramstring)
+            self.do_GET_index_search_by_literal(paramstring, send_type='json')
             return
         elif pathstring == '/litc':
             self.do_GET_index_search_by_literal(paramstring, send_type='deflate')
@@ -80,32 +83,31 @@ class IndexServer(BaseHTTPRequestHandler):
     def do_GET_index(self):
         '''Inefficient!
         Returns whole index as json.'''
-        # with open(settings.index_filename, 'rb') as file:
-        #     idx = pickle.load(file)
         idx = tok_idx
-        # with open(settings.indexed_pages_filename, 'rb') as file:
-        #     pgs = pickle.load(file)
         pgs = page_idx
         
         response = {'tokens': idx, 'pages': pgs}
         self.send_json(response)
     
-    def do_GET_index_search_by_substr(self, paramstr: str):
+    def do_GET_index_search_by_substr(self, paramstr: str, send_type='json'):
         '''Searches index for substrings in keys
         
         Search substrings with "q=substr[+more+substrings]"'''
         
-        # with open(settings.index_filename, 'rb') as file:
-        #     idx = pickle.load(file)
         idx = tok_idx
-        # with open(settings.indexed_pages_filename, 'rb') as file:
-        #     pgs = pickle.load(file)
         pgs = page_idx
 
         q_param = self.get_parameter('q', paramstr)
+        nolink = self.get_parameter('nolink', paramstr)
+        filter_param = self.get_parameter('f', paramstr)
         if q_param is None:
             self.send_error(400, explain='Expected query parameter, e.g. ?q=example')
             return
+        if filter_param is not None:
+            filter_param = filter_param.lower()
+            if filter_param != 'and' and filter_param != 'or':
+                self.send_error(400, explain='Bad argument, f takes "and", "or"')
+                return
         
         # '+' denotes spaces: "test string" => "test+string"
         # for queries without '+' split('+') will return a list with one item: the original string
@@ -116,55 +118,47 @@ class IndexServer(BaseHTTPRequestHandler):
             #  and makes a new (reduced) dict to return, which is faster than a for loop
         spgs = dict()
         for token, pages in sidx.items():
-            for page in pages:
-                spgs[page] = pgs[page]
+            for id in pages:
+                good = True
+                if filter_param != 'or':
+                    for sstr in substrs:
+                        if good and sstr not in pgs[id]['content']:
+                            good = False
+                            break
+                if good:
+                    if nolink:
+                        spgs[id] = pgs[id].copy()
+                        spgs[id].pop('links', None)
+                    else:
+                        spgs[id] = pgs[id]
         
         response = {'tokens': sidx, 'pages': spgs}
-        self.send_json(response)
+        if send_type == 'deflate':
+            self.send_compressed_json(response)
+        elif send_type == 'pickle':
+            self.send_binary(response)
+        elif send_type == 'json':
+            self.send_json(response)
 
-    def do_GET_index_search_by_initials(self, paramstr: str):
-        '''Searches index by words initials
-        
-        Search with "q=[char o chars]", e.g. q=apb'''
-        
-        # with open(settings.index_filename, 'rb') as file:
-        #     idx = pickle.load(file)
-        idx = tok_idx
-        # with open(settings.indexed_pages_filename, 'rb') as file:
-        #     pgs = pickle.load(file)
-        pgs = page_idx
-
-        q_param = self.get_parameter('q', paramstr)
-        if q_param is None:
-            self.send_error(400, explain='Expected query parameter, e.g. ?q=exmpl')
-            return
-        
-        sidx = dict([item for item in idx.items() if item[0][0] in q_param])
-        spgs = dict()
-        for token, pages in sidx.items():
-            for page in pages:
-                spgs[page] = pgs[page]
-
-        response = {'tokens': sidx, 'pages': spgs}
-        self.send_json(response)
-    
     def do_GET_index_search_by_stsubstr(self, paramstr: str, send_type='json'):
         '''Searches index for keys starting with the given substrings
         
         Search substrings with "q=substr[+more+substrs]"'''
         
-        # with open(settings.index_filename, 'rb') as file:
-        #     idx = pickle.load(file)
         idx = tok_idx
-        # with open(settings.indexed_pages_filename, 'rb') as file:
-        #     pgs = pickle.load(file)
         pgs = page_idx
 
         q_param = self.get_parameter('q', paramstr)
         nolink = self.get_parameter('nolink', paramstr)
+        filter_param = self.get_parameter('f', paramstr)
         if q_param is None:
             self.send_error(400, explain='Expected query parameter, e.g. ?q=example')
             return
+        if filter_param is not None:
+            filter_param = filter_param.lower()
+            if filter_param != 'and' and filter_param != 'or':
+                self.send_error(400, explain='Bad argument, f takes "and", "or"')
+                return
         
         # '+' denotes spaces: "test+string" => "test string"
         # for queries without '+' split('+') will return a list with one item: the original string
@@ -173,11 +167,18 @@ class IndexServer(BaseHTTPRequestHandler):
         spgs = {}
         for token, pages in sidx.items():
             for id in pages:
-                if nolink:
-                    spgs[id] = pgs[id].copy()
-                    spgs[id].pop('links', None)
-                else:
-                    spgs[id] = pgs[id]
+                good = True
+                if filter_param != 'or':
+                    for sstr in substrs:
+                        if good and sstr not in pgs[id]['content']:
+                            good = False
+                            break
+                if good:
+                    if nolink:
+                        spgs[id] = pgs[id].copy()
+                        spgs[id].pop('links', None)
+                    else:
+                        spgs[id] = pgs[id]
         
         response = {'tokens': sidx, 'pages': spgs}
         if send_type == 'deflate':
@@ -192,18 +193,20 @@ class IndexServer(BaseHTTPRequestHandler):
         
         Search literals with "q=word[+more+words]"'''
         
-        # with open(settings.index_filename, 'rb') as file:
-        #     idx = pickle.load(file)
         idx = tok_idx
-        # with open(settings.indexed_pages_filename, 'rb') as file:
-        #     pgs = pickle.load(file)
         pgs = page_idx
 
         q_param = self.get_parameter('q', paramstr)
         nolink = self.get_parameter('nolink', paramstr)
+        filter_param = self.get_parameter('f', paramstr)
         if q_param is None:
             self.send_error(400, explain='Expected query parameter, e.g. ?q=example')
             return
+        if filter_param is not None:
+            filter_param = filter_param.lower()
+            if filter_param != 'and' and filter_param != 'or':
+                self.send_error(400, explain='Bad argument, f takes "and", "or"')
+                return
         
         # '+' denotes spaces: "test+string" => "test string"
         # for queries without '+' split('+') will return a list with one item: the original string
@@ -213,9 +216,11 @@ class IndexServer(BaseHTTPRequestHandler):
         for token, pages in sidx.items():
             for id in pages:
                 good = True
-                for word in words:
-                    if good and word not in pgs[id]['content']:
-                        good = False
+                if filter_param != 'or':
+                    for word in words:
+                        if good and word not in pgs[id]['content']:
+                            good = False
+                            break
                 if good:
                     if nolink:
                         spgs[id] = pgs[id].copy()
@@ -323,7 +328,7 @@ def start_server(index_fn: str = None, be_quiet: bool = False):
     global tok_idx
     global page_idx
     
-    # Load indices, they will be in memory
+    # Load indices, they will be kept in memory
     try:
         with open(settings.index_filename, 'rb') as fd:
             tok_idx = pickle.load(fd)
