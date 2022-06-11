@@ -65,8 +65,8 @@ if r.status_code == 200:
     for token in index:
         print(token + ':')
         # Iterate through pages where the token appears
-        for item in index[token]:
-            print("    {}: {}".format(page_index[str(item['id'])]['url'], item['count']))
+        for page, count in index[token].items():
+            print("    {}: {}".format(page_index[page]['url'], count))
 ```
 
 ## Unittest
