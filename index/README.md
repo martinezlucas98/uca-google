@@ -12,7 +12,7 @@ Various settings for both running the indexer and the server are found in settin
 ## Building index
 To run the indexer execute index.py (from the project root)
 ```
-$ python index/index.py
+python index/index.py
 ```
 For help on available options use `--help`. The most useful one is `--forever` to run the indexer in a perpetual loop.
 
@@ -21,24 +21,17 @@ When executing the indexer, every dot is a file scanned. If no dots appear and t
 ## Running index server
 From the project root (*settings.py contains hostname and port settings, change them as needed*):
 ```
-$ python index/index_server.py
-Word index 'index/indices/index.pickle' used
-Page index 'index/indices/indexed_pages.pickle' used
-Server started http://localhost:8080
-PID: 1234
-
+python index/index_server.py
 ```
 Keyboard interrupt to stop server.
 
 To run the server in the background:
 ```
-$ nohup python index/index_server.py &
-[1] 1234
-nohup: ignoring input and appending output to 'nohup.out'
+nohup python index/index_server.py &
 ```
 And to terminate:
 ```
-$ kill 1234
+kill 1234
 ```
 
 ## Querying the index
