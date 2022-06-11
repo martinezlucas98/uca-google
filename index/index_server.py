@@ -251,54 +251,24 @@ class IndexServer(BaseHTTPRequestHandler):
         
         self.wfile.write(bytes("&emsp;/subs<br>&emsp;&emsp;json<br>", "utf-8"))
         self.wfile.write(bytes("&emsp;&emsp;Searches index for substrings, returns matching words.<br><br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;Parameters:<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;q=search[+more+words]<br><br>", "utf-8"))
-        
-        self.wfile.write(bytes("&emsp;/i<br>&emsp;&emsp;json<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;Searches index by initial characters.<br>&emsp;&emsp;Slow, but better than /full<br><br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;Parameters:<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;q=a[bcd]<br>", "utf-8"))
         
         self.wfile.write(bytes("&emsp;/st<br>&emsp;&emsp;json<br>", "utf-8"))
         self.wfile.write(bytes("&emsp;&emsp;Searches index for substrings, returns words that start with them. Could probably be filtered at endpoint from /subs<br><br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;Parameters:<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;q=sear[+more+word]<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;nolist=1 (optional)<br><br>", "utf-8"))
-        
-        self.wfile.write(bytes("&emsp;/stc<br>&emsp;&emsp;blob<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;Same as /st, but compressed with DEFLATE<br><br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;Parameters:<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;q=sear[+more+word]<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;nolist=1 (optional)<br><br>", "utf-8"))
-        
-        self.wfile.write(bytes("&emsp;/sts<br>&emsp;&emsp;blob<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;Same as /st, but serialized with pickle<br><br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;Parameters:<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;q=sear[+more+word]<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;nolist=1 (optional)<br><br>", "utf-8"))
         
         self.wfile.write(bytes("&emsp;/lit<br>&emsp;&emsp;json<br>", "utf-8"))
         self.wfile.write(bytes("&emsp;&emsp;Searches index for exact matches.<br><br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;Parameters:<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;q=sear[+more+word]<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;nolist=1 (optional)<br><br>", "utf-8"))
         
-        self.wfile.write(bytes("&emsp;/litc<br>&emsp;&emsp;blob<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;Same as /lit, but compressed with DEFLATE<br><br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;Parameters:<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;q=sear[+more+word]<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;nolist=1 (optional)<br><br>", "utf-8"))
+        self.wfile.write(bytes("Note: By default the above will return application/json, but /subs, /st and /lit can also \
+            return compressed with zlib DEFLATE or serialized with pickle, both as application/blob.<br>&emsp;To do so add 'c' or 's' for compressed and serialized, \
+                respectively, e.g. /stc, /lits<br><br>", "utf-8"))
         
-        self.wfile.write(bytes("&emsp;/lits<br>&emsp;&emsp;blob<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;Same as /lit, but serialized with pickle<br><br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;Parameters:<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;q=sear[+more+word]<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;&emsp;&emsp;nolist=1 (optional)<br><br>", "utf-8"))
+        self.wfile.write(bytes("Parameters:<br>", "utf-8"))
+        self.wfile.write(bytes("&emsp;q=<search>[+<more>+<words>]<br>", "utf-8"))
+        self.wfile.write(bytes("&emsp;nolist=1 (optional)<br>", "utf-8"))
+        self.wfile.write(bytes("&emsp;f=[and | or] (default=and)<br><br>", "utf-8"))
         
         self.wfile.write(bytes("&emsp;/help<br>&emsp;&emsp;html<br>", "utf-8"))
         self.wfile.write(bytes("&emsp;&emsp;This page.<br><br>", "utf-8"))
-        self.wfile.write(bytes("Parameters:<br>", "utf-8"))
-        self.wfile.write(bytes("&emsp;/path?key=value&key1=value1", "utf-8"))
         self.wfile.write(bytes("</p>", "utf-8"))
         self.wfile.write(bytes("</body></html>", "utf-8"))
     
