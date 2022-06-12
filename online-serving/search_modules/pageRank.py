@@ -1,41 +1,7 @@
 
 import numpy as np
 import random
-
-#probabilidad en el que se salta a unos de los links (para el pageRank)
-DAMPING_FACTOR = 0.85
-
-def calculate_backlinks(pages):
-    """
-        Calculamos los backlinks que tienen cada pagina.
-    """
-    
-    for page in pages:
-        backlinks = []
-        for p in pages:
-            if p != page:
-                if page in pages[p]['links']:
-                    backlinks.append(p)
-        pages[page]['links'] = backlinks
-    return pages
-        
-
-def generate_pages(indexes):
-    """
-        Generamos las paginas a buscar con sus backlinks correspondiente, se 
-        retorna un diccionario donde las keys son las paginas y el valor otro
-        diccionario con sus valores correspondiente para el retorno.
-        Ej: {'url1':{'url':url1,'title':"t1", 'description':'d1', 'backlinks':[]}, 'url2': {...}, ...}
-    """
-    #se genera el dict
-    indexes_keys = list(indexes.keys())
-    linked_pages = {}
-    for tk in indexes_keys:
-        for page in indexes[tk]:
-            linked_pages[page['url']] = {'title':page['title'], 
-            'description':page['description'], 'links':page['links'], 'count':page['count']}
-    linked_pages = calculate_backlinks(linked_pages)
-    return linked_pages
+from copy import deepcopy
 
 def get_next_page_prob(indexes_pages, current_page):
     """
@@ -66,44 +32,83 @@ def get_next_page_prob(indexes_pages, current_page):
                                                 
     return probability
 
-def pagerank(indexes_pages, tol=0.001):
-    """
-        Damos un puntaje a cada pagina con el algoritmo pageRank.
-        Retorna las paginas con sus puntuaciones, ej: {'page1':0.24342, 'page2':0.45346, ...}
-    """
-    PAGE_KEYS = indexes_pages.keys()
-    # la puntuacion actual de las paginas, ej: {'page1':0.24342, 'page2':0.45346, ...}
-    current_rank = {}
-    for page in PAGE_KEYS:
-        current_rank[page] = 1/len(PAGE_KEYS)
-    
-    #puntuacion actual para verficar la convergencia del pageRank
-    prev_rank = current_rank.copy()
-    while True:
-        for current_page in PAGE_KEYS:                        
-            prob = 0
-            for page in PAGE_KEYS:
-                page_links = indexes_pages[page]['links']
-                # si no hay backlinks agregamos todas las paginas que tenemos
-                if len(page_links) == 0:
-                    page_links = PAGE_KEYS
-                # la probabilidad de salir de nuestra pag. actual
-                if current_page in page_links:
-                    prob += prev_rank[page]/len(page_links)
+class PageRank:
+    def __init__(self, indexes, d=0.85, tol=0.001, it = 1):
+        self.__pages = indexes['pages']
+        self.__indexes_pageRank = {}
+        self.__damping_factor = d
+        self.__tol = tol
+        self.__iteration = it        
+        self.__generate_pages(indexes['tokens'])
+            
+    def __generate_pages(self, tokens):
+        for token in tokens:
+            for page_id in tokens[token]:
+                page_url = self.__pages[page_id]['url']
+                # self.__indexes_pageRank [page_url] = {'links':[], 'id' : page_id,'score': 1.0}
+                self.__indexes_pageRank [page_url] = {'links':self.__pages[page_id]['links'], 'id' : page_id,'score': 1.0}
+        
+        for page in self.__indexes_pageRank:
+            for page_id in self.__pages:
+                if (self.__indexes_pageRank[page]['id'] != page_id):
+                    if(page in self.__pages[page_id]['links']):
+                        page_url = self.__pages[page_id]['url']
+                        index_url = self.__indexes_pageRank[page_url]
+                        index_url['links'].append(page)                    
+        
+    def sort(self):
+        self.__indexes_pageRank = dict(sorted(self.__indexes_pageRank.items(), key=lambda x: x[1]['score'], reverse=True))
 
-            # aplicamos la formula del pageRank y actualizamos los puntajes,
-            # probabilidad de seguir visitando paginas a partir de la actual
-            prob = (1-DAMPING_FACTOR)/len(PAGE_KEYS) + DAMPING_FACTOR * prob
-            current_rank[current_page] = prob
+    def get_results(self):
+        results = []
+        for page in self.__indexes_pageRank:
+            page_id = self.__indexes_pageRank[page]['id']
+            result = {
+                'url': page,
+                'title': self.__pages[page_id]['title'],
+                'description': self.__pages[page_id]['description'], 
+            }
+            results.append(result)
+        
+        return results
 
-        #verificamos si las puntuaciones de las paginas convergen
-        conv_total = 0            
-        for page in prev_rank.keys():            
-            if abs(prev_rank[page] - current_rank[page]) < tol:
-                conv_total += 1
-            else:
-                break
-        if conv_total == len(PAGE_KEYS):
-            return current_rank
-        #cargamos las punturacion actuales para seguir con la convergencia
-        prev_rank = current_rank.copy()    
+    def pagerank(self):
+        """
+            Damos un puntaje a cada pagina con el algoritmo pageRank.
+            Retorna las paginas con sus puntuaciones, ej: {'page1':0.24342, 'page2':0.45346, ...}
+        """
+                
+        # la puntuacion actual de las paginas, ej: {'page1':0.24342, 'page2':0.45346, ...}        
+        for page in self.__indexes_pageRank.keys():            
+            self.__indexes_pageRank [page]['score'] /= len(self.__indexes_pageRank.keys())
+                    
+        #puntuacion actual para verficar la convergencia del pageRank        
+        prev_rank = deepcopy(self.__indexes_pageRank)
+     
+        conv_total = 0
+        it = 0
+        while (conv_total != len(self.__indexes_pageRank.keys()) and it < self.__iteration):        
+            for current_page in self.__indexes_pageRank.keys():                        
+                prob = 0
+                for page in self.__indexes_pageRank.keys():
+                    page_links = self.__indexes_pageRank[page]['links']
+                    # si no hay backlinks agregamos todas las paginas que tenemos
+                    if len(page_links) == 0:
+                        page_links = self.__indexes_pageRank.keys()
+                    # la probabilidad de salir de nuestra pag. actual
+                    if current_page in page_links:                                                
+                        prob += prev_rank[page]['score']/len(page_links)
+                
+                prob = (1 - self.__damping_factor) / len(self.__indexes_pageRank.keys()) + self.__damping_factor * prob                
+                self.__indexes_pageRank[current_page]['score'] = prob
+            #verificamos si las puntuaciones de las paginas convergen
+            conv_total = 0            
+            for page in prev_rank.keys():
+                rank = abs(prev_rank[page]['score'] - self.__indexes_pageRank[page]['score'])                
+                if rank < self.__tol:
+                    conv_total += 1
+                else:
+                    break         
+            #cargamos las punturacion actuales para seguir con la convergencia            
+            prev_rank = deepcopy(self.__indexes_pageRank)         
+            it += 1   
