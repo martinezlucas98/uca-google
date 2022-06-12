@@ -5,8 +5,22 @@ from fastapi import FastAPI
 from expand_query import expand_query 
 
 from nlp_tools.autocomplete import autocomplete_gpp
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+
+# We need to allow all origins that fetch us. 
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = origins,
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"],
+    expose_headers = ["*"]
+)
 
 
 @app.get("/")
@@ -48,6 +62,7 @@ def autocomplete( q: Optional[str] = ''):
         'status': 'ok',
         'autocompletes': results
     }
+    print("[autocomplete_response] = ", q, response)
     return response
 
 
