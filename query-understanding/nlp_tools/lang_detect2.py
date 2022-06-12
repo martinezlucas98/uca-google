@@ -9,9 +9,9 @@ def detect_lang_googletrans(sentence: str) -> str:
     translator = Translator()
     lang = translator.detect(sentence)
     if lang.lang == 'es' : 
-        result ='spanish'
+        result ='es'
     elif lang.lang == 'en':
-        result = 'english'
+        result = 'en'
     else:
         result = 'other'
     return result
@@ -24,9 +24,9 @@ def detect_lang_langdetect(sentence: str) -> str:
     except LangDetectException:
         return 'unknow'
     if 'es' in lang: 
-        result = 'spanish'
+        result = 'es'
     elif 'en' in lang:
-        result = 'english'
+        result = 'en'
     else:
         result = 'other'
     return result
@@ -47,9 +47,13 @@ def detect_lang_swnltk(sentence: str) -> str:
                 lang_count[lang] += 1
         # Recorremos las palabras del texto a analizar
     result = max(lang_count, key=lang_count.get) 
+    if result == 'spanish':
+        result = 'es'
+    else:
+        result = 'en'
     return result
 
-def language_detect(sentence: str) -> str:
+def language_detect2(sentence: str) -> str:
     sentence = ''.join([i for i in sentence if not i.isdigit()])
     result_detectlang = detect_lang_langdetect(sentence)
     try:
@@ -59,9 +63,9 @@ def language_detect(sentence: str) -> str:
             return result_lang_google
         else:
             if result_lang_google != 'other': 
-                return 'spanish'
+                return 'es'
             else:
-                if result_detectlang == 'english' or result_detectlang == 'spanish':
+                if result_detectlang == 'en' or result_detectlang == 'es':
                    return result_detectlang
                 return 'unknow'
     except: 
@@ -70,22 +74,22 @@ def language_detect(sentence: str) -> str:
 
 if __name__ == '__main__':
     #return 'en' (english)
-    print( language_detect("how to play the guitar"))
+    print( language_detect2("how to play the guitar"))
     print('\n')
-    print( language_detect("examen final schedule"))
+    print( language_detect2("examen final schedule"))
     print('\n')
     #return 'es' (spanish)
-    print( language_detect("como tocar la guitarra"))
+    print( language_detect2("como tocar la guitarra"))
     print('\n')
-    print( language_detect("horarios de examenes finales"))
+    print( language_detect2("horarios de examenes finales"))
     print('\n')
-    print( language_detect("hilo"))
+    print( language_detect2("hilo"))
     print('\n')
     # #return 'unknow'
-    print( language_detect("https://www.comxdxd.com"))
+    print( language_detect2("https://www.comxdxd.com"))
     print('\n')
-    print( language_detect("hola123231"))
+    print( language_detect2("hola123231"))
     print('\n')
-    print( language_detect("") )
-    print(language_detect("daklsdasjkd"))
+    print( language_detect2("") )
+    print(language_detect2("daklsdasjkd"))
     print('\n')
