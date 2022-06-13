@@ -12,7 +12,14 @@ function SearchBar(){
   //La funcion handleClick() se llamara una vez que el usuario le de al boton buscar de la barra,
   //Esta funcion nos rediccionara a otra ruta /results
   const [autocompletOpts, setAutocompleteOpts] = useState([]);
- 
+
+  const [focused, setFocused] = useState(false)
+
+  const onFocus = () => setFocused(true)
+  const onBlur = () => setFocused(false)
+
+  let [showAutoComplete, setShowAutoComplete] = useState(false);
+  
   
   const router = useRouter()
   const handleSubmit=(e)=>{
@@ -25,6 +32,7 @@ function SearchBar(){
         query: {q:value}
       })
     }
+    setvalue("")
     
   }
 
@@ -66,7 +74,7 @@ function SearchBar(){
       
     
   },[value]) ;
-    
+ 
   //La funcion handleChange() se usa para poder utilizar el input del usuario y usamos un useState para obtener ese valor
   async function handleChange(event){
     setvalue(event.target.value)
@@ -74,13 +82,15 @@ function SearchBar(){
 
   return(
     <form onSubmit={handleSubmit} >
-      <div className={styles.wrapper}>
-        <input type='text' className={styles.input_text} placeholder='Search!' onChange={handleChange} value={value}></input> 
+      <div id = "search" className={styles.wrapper}>
+        <input onClick={()=>{setShowAutoComplete(true)}} type='text' className={styles.input_text} placeholder='Search!' onChange={handleChange} value={value} ></input> 
         <button className={styles.button_search} type='submit'>
           <SearchIcon  className={styles.icon}/>
         </button>
       </div>
-      <Autocomplete arr={autocompletOpts} setSelectedOpt={setvalue}/>
+      <Autocomplete arr={autocompletOpts} setSelectedOpt={setvalue} show={showAutoComplete} onClickOutside={()=> {setShowAutoComplete(false)}}/>
+      
+     
     </form>
   
     

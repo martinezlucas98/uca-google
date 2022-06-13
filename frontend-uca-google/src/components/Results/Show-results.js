@@ -41,6 +41,8 @@ function Show_results(props){
     setCurrentPage(prevPage)
  
   }
+
+ 
   //En el caso de que no haya ningun resultado, mostramos en pantalla "No se encontraron resultado", en caso contrario, se muestran los resultados
   if(props.datox.status === "notfound"){
     return(
