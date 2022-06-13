@@ -63,12 +63,21 @@ def autocomplete( q: Optional[str] = ''):
         q = 'horarios d -> ['horarios de clases', 'horarios de caja', horarios de cantina']
          
     """
+
+    start_time = datetime.datetime.now()
+
     results = autocomplete_gpp(sentence= q)
     response = {
         'status': 'ok',
         'autocompletes': results
     }
+    end_time = datetime.datetime.now()
+    time_diff = (end_time - start_time)
+    execution_time = time_diff.total_seconds() * 1000
+    print("execution time in autocomplete", execution_time, "ms")
+    response['execution time'] = execution_time
     print("[autocomplete_response] = ", q, response)
+
     return response
 
 
