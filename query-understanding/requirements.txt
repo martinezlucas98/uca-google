@@ -50,3 +50,4 @@ urllib3==1.26.9
 uvicorn==0.17.6
 wasabi==0.9.1
 zmq==0.0.0
+googletrans==4.0.0-rc1
