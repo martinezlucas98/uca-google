@@ -1,6 +1,7 @@
 from text_normalization import  normalize
 
 from nlp_tools.lang_detect import language_detect, language_detect_2
+from nlp_tools.lang_detect2 import language_detect2
 from nlp_tools.query_expansion import query_expansion, entity_recongnition
 
 def expand_query(sentence:str) -> dict : 
@@ -17,7 +18,7 @@ def expand_query(sentence:str) -> dict :
         #'part_of_speech': {}
     }
     # first we need to detect the language, to pass the language as an argument in the others functions
-    lang_detected = language_detect_2(sentence)  
+    lang_detected = language_detect2(sentence)  
 
 
     
