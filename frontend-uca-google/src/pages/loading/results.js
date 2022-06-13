@@ -1,5 +1,5 @@
 import SearchBar from '../../components/SearchBar/SearchBar';
-import Results from '../../components/loading/Results';
+import Results from '../../components/Loading/Results';
 import styles from '../../styles/results.module.css'
 import UcaLogo from '../../components/UcaLogo/UcaLogo';
 import React, { useState, useEffect } from 'react';

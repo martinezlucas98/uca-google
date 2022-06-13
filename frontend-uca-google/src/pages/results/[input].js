@@ -37,8 +37,8 @@ export async function getServerSideProps({query}) {
   // Fetch data from external API
  
 
-  console.log(query.q)
-  const res = await fetch('http://127.0.0.1:8000/search?q=' + query.q)
+  console.log('query: ', query.input)
+  const res = await fetch('http://127.0.0.1:8000/search?q=' + query.input)
   let data = await res.json()
   // for(let i=0;i<10000;i++){
   //   console.log(i);
