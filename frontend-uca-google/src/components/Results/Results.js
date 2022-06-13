@@ -22,9 +22,9 @@ function Results(props){
                 
                 <div className={styles.wrapper}>
 
-                  <p className={styles.title}> Title = {props.title}</p>
-                  <p className={styles.link}> Link = {props.link}</p>
-                  <p className={styles.description}> Descripcion = {truncateString(props.description, 20)}</p>
+                  <p className={styles.title}> {props.title}</p>
+                  <p className={styles.link}> {props.link}</p>
+                  <p className={styles.description}> {truncateString(props.description, 20)}</p>
                 
                 </div>
           

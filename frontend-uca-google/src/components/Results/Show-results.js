@@ -58,6 +58,7 @@ function Show_results(props){
         <div className={styles.buttons}>
           <button onClick={prevHandler} className={styles.buttonPrev}> <NavigateBeforeIcon/></button>
           <button onClick={nextHandler} className={styles.buttonNext}><NavigateNextIcon/></button>
+          <span className={styles.pageNumber}>Pagina {currentPage+1}</span>
         </div>
    
       {

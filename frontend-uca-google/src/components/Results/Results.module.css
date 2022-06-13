@@ -28,6 +28,8 @@
 }
 
 .buttons{
+  display: flex;
+  align-items: center;
   margin-left: 15px;
 
 }
@@ -36,4 +38,10 @@
   
    float: left
   
+}
+
+.pageNumber{
+  font-weight: bold;
+  margin-left: 15px;
+
 }
