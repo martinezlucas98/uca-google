@@ -1,0 +1,38 @@
+.list{
+    position: absolute;
+    background-color: white;
+    width: 700px;
+    
+    
+    
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    margin-top: -20px;
+    border-radius: 10px;
+    
+}
+
+.option{
+    padding: 8px;
+    padding-left: 20px;
+    
+}
+.option:hover{
+    background-color: lightgray;
+    
+}
+
+.option:active{
+    background-color: #0B4593;
+    color: white;
+}
+
+.option p {
+    font-weight: bold;
+    margin: 0;
+}
+
+.option p:active {
+    font-weight: bold;
+    color: white;
+    margin: 0;
+}
