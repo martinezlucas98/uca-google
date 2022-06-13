@@ -13,8 +13,7 @@ def expand_query(sentence:str) -> dict :
         'lemmatized_tokens': [],
         'stemmed_tokens': [],
         'query_expansion': [],
-        'classification': ''
-        #'entity': {},
+        #'classification': ''
         #'part_of_speech': {}
     }
     # first we need to detect the language, to pass the language as an argument in the others functions
@@ -26,7 +25,6 @@ def expand_query(sentence:str) -> dict :
     # if the sentence enter is not a something like url, only_digits or not detected language -> call function that use a language
     if lang_detected != 'unknow':
         clean, stemmed_tokens, lemmatized_tokens, corrected_sentence = normalize(sentence, lang=lang_detected)
-        classification = entity_recongnition(clean)
         query_expan = query_expansion(corrected_sentence)
        
     else:
@@ -34,7 +32,6 @@ def expand_query(sentence:str) -> dict :
         stemmed_tokens = []
         lemmatized_tokens = []
         corrected_sentence = []
-        classification = []
         query_expan = []
 
     
@@ -42,12 +39,10 @@ def expand_query(sentence:str) -> dict :
     response['language'] = lang_detected #language
     response['stemmed_tokens'] = stemmed_tokens
     response['lemmatized_tokens'] = lemmatized_tokens
-    response['classification'] = classification
     response['query_expansion'] = query_expan
-    #response['entity'] = entity
+    #response['classification'] = classification
     #response['part_of_speech'] = part_of_speech
     return response
-
 
 
 if __name__ == '__main__':
