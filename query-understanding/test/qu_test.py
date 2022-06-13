@@ -2,7 +2,7 @@ import unittest
 
 from nlp_tools.tokenizer import tokenizer
 from text_normalization import tokenization
-from nlp_tools.lang_detect import language_detect
+from nlp_tools.lang_detect2 import language_detect2
 from nlp_tools.stopwords_filter import remove_stopwords
 from nlp_tools.lemmatization import lemmatizer
 from text_normalization import stemming, tokenization, cleaning
@@ -165,15 +165,15 @@ class QueryUnderstandingTest(unittest.TestCase):
     
     def test_language_detect(self):
         self.assertEqual(
-            language_detect('carrera de informatica'),
+            language_detect2('carrera de informatica'),
             'es'
         )
         self.assertEqual(
-            language_detect('this is a test'),
+            language_detect2('this is a test'),
             'en'
         )
 
-        
+       
     def test_endpoint_expand_query(self):
         response = endpoints.expand_query_route(q='')
         self.assertEqual(
