@@ -32,7 +32,13 @@ class PageRank:
         self.__tol = tol
         self.__iteration = it        
         self.__generate_pages(indexes['tokens'])
-            
+    
+    def get_indexes_pageRank(self):
+        """
+            Metodo get, solo para el test.
+        """
+        return self.__indexes_pageRank
+
     def __generate_pages(self, tokens):
         """
         *Description:
@@ -64,6 +70,9 @@ class PageRank:
                         index_url['links'].append(page)                    
         
     def sort(self):
+        """
+            Ordena el contenido el resultado por relevancia, en orden decreciente.
+        """
         self.__indexes_pageRank = dict(sorted(self.__indexes_pageRank.items(), key=lambda x: x[1]['score'], reverse=True))
 
     def get_results(self):
@@ -81,10 +90,12 @@ class PageRank:
         results = []
         for page in self.__indexes_pageRank:
             page_id = self.__indexes_pageRank[page]['id']
+            description = self.__pages[page_id]['content']
+            description = description[:300]
             result = {
                 'url': page,
                 'title': self.__pages[page_id]['title'],
-                'description': self.__pages[page_id]['description'], 
+                'description': description, 
             }
             results.append(result)
         

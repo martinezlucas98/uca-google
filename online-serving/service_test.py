@@ -3,13 +3,22 @@ import unittest
 import requests
 import json
 
-from search_modules.pageRank import pagerank, generate_pages
+from search_modules.pageRank import PageRank
+from search_modules.tf_idf import TfIdf
+from search_modules.bm25 import BM25
 from settings import PATH_INDEX, PATH_QUERY, PATH_ONLINE
 from search import search
 
 
 class ServiceTest(unittest.TestCase):
+    """
+    Testea la conexion con los servicios externos.
+    """
+
     def test_index_service(self):
+        """
+        Test de la conexion con el servicio Index.
+        """
         flg = True
         try:
             response = requests.get(PATH_INDEX)
@@ -24,6 +33,9 @@ class ServiceTest(unittest.TestCase):
         )
 
     def test_query_service(self):
+        """
+        Test de la conexion con el servicio query-understanding.
+        """
         flg = True
         try:
             response = requests.get(PATH_QUERY)
@@ -38,39 +50,67 @@ class ServiceTest(unittest.TestCase):
         )
 
 class SearchTest(unittest.TestCase):
+    """
+    Testea los diferentes casos de busquedas, con los diferentes algoritmos
+    de ranking.
+    """
 
-    @unittest.expectedFailure
-    def test_rank_pageRank(self):
-        # si se actualiza el indice con el crawler estos datos de prueba puede ser que 
-        # estos datos ya no sean validos.
-        data = [
-            'http://www.universidadcatolica.edu.py/preguntas-frecuentes/',
-            'https://www.universidadcatolica.edu.py/admision-2/', 
-            'https://www.universidadcatolica.edu.py/author/uc/'
-        ]
-        pages = search("curso de testing?")
-        pages = json.loads(pages)
-        pages  = pages['results']
-        pages = [page['url'] for page in pages]
-        self.assertEqual(
-            first = pages, 
-            second = data
-        )
-    
-    def test_prob_pageRank(self):
-        pages = requests.get(PATH_INDEX + "st?q=curso+de+testing").json()
-        pages = generate_pages(pages)
-        ranked_pages = pagerank(pages)
+    def test_pageRank(self):
+        """
+        Test de la puntuacion del algoritmo pageRank sea correcto        
+        """
+        indexes = requests.get(PATH_INDEX + "st?q=test").json()
+        # se instancia y se puntua.
+        page_rank = PageRank(indexes)
+        page_rank.rank_pages()
+        rank = page_rank.get_indexes_pageRank()
+
+        # se debe cumplir que la suma de todas puntuacion sea igual a uno.
         count = 0.0
-        for page in ranked_pages.keys():
-            count += ranked_pages[page]
+        pages = indexes['pages']
+        for page_id in pages:
+            url = pages[page_id]['url']
+            count += rank[url]['score']
         count = round(count)
+        #verificamos
         self.assertEqual(
             first = count == 1.0, 
+            second = True
+       )
+
+    def test_bm25_tf_idf(self):
+        """
+        Test term frequency (tf) de bm25 y tf-idf siempre deben ser distintos
+        """
+        indexes = requests.get(PATH_INDEX + "st?q=informatica").json()
+        # obtenemos e primer token
+        token = list(indexes['tokens'].keys())
+        token = token[0]
+        # obtenemos la primera pagina relacionada del token
+        page_id = indexes['tokens'][token]
+        page_id = list(page_id.keys())
+        page_id = page_id[0]
+        # instanciamos bm25 y obtenemos el tf para token en el contenido de page_id
+        bm25 = BM25(indexes)
+        bm25_tf = bm25.term_frequency(token, page_id)
+        # instanciamos tf-idf y obtenemos el tf para token en el contenido de page_id
+        tfidf = TfIdf(indexes)
+        tfidf_tf = tfidf.term_frequency(token, page_id)
+        # si el token se encuentra en la pagina con page_id, ambas tf deben ser diferentes
+        check = bm25_tf != tfidf
+        # ambas tf coinciden cuando el token no se encuentra en la pag.
+        if (bm25_tf == 0 and tfidf == 0):
+            check = True
+
+        self.assertEqual(
+            first = check, 
             second = True
         )
 
     def test_page_not_found(self):
+        """
+        Test de ciertas palabras en otro idioma (en guarani) no obtenga resultado
+        """
         results = search("mbarakaja")
         results = json.loads(results)
 
@@ -86,6 +126,9 @@ class SearchTest(unittest.TestCase):
         )
 
     def test_stop_words(self):
+        """
+        Test de busqueda de palabras que solo contienen stopwords
+        """
         results = search("que")
         results = json.loads(results)
 
@@ -101,8 +144,15 @@ class SearchTest(unittest.TestCase):
         )
 
 class OnlineServingTest(unittest.TestCase):
+    """
+    Testea que el servicio online-serving funcione correctamente.
+    """
+
     def test_search(self):
-        r = requests.get(PATH_ONLINE + "search?q=curso+de+testing").json()
+        """
+        Test online-serving busqueda valida
+        """
+        r = requests.get(PATH_ONLINE + "search?q=curso+de+test").json()
         r = json.loads(r)
         self.assertEqual(
             first = r['status'] == "success", 
@@ -110,6 +160,9 @@ class OnlineServingTest(unittest.TestCase):
         )
 
     def test_empty_search(self):
+        """
+        Test online-serving para busquedas vacias
+        """
         r = requests.get(PATH_ONLINE + "search?q=").json()
         r = json.loads(r)
         self.assertEqual(
@@ -130,7 +183,4 @@ if __name__ == "__main__":
     print("\n>>> REQUEST SERVICES:")
     suite = unittest.TestLoader().loadTestsFromTestCase(OnlineServingTest)
     unittest.TextTestRunner(verbosity=2).run(suite)
-
-   
-
-    
+ 

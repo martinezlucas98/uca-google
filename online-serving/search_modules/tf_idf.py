@@ -90,12 +90,14 @@ class TfIdf:
         results = []
         # cada item es una tupla (page_id, score)
         for item in self.__indexes_tf_idf:
-            page_id = item[0]            
+            page_id = item[0]
+            description = self.__pages[page_id]['content']
+            description = description[:300]         
             results.append(
                 {
                     "url": self.__pages[page_id]['url'],
                     "title": self.__pages[page_id]['title'],
-                    "description": self.__pages[page_id]['description']
+                    "description": description
                 }
             )
         return results
