@@ -1,4 +1,9 @@
 import spacy
+import datetime
+
+
+nlp_english = spacy.load('en_core_web_sm')
+nlp_spanish = spacy.load('en_core_web_sm')
 
 def lemmatizer(words: list, lang='es')-> list:
     """Give a list of words 
@@ -11,15 +16,20 @@ def lemmatizer(words: list, lang='es')-> list:
      -> ['hacer', 'tarea']
      where 'hacer' is the root format of 'haciendo'
     """
-    
+    start_time = datetime.datetime.now()
     sentence = (' ').join(words)
     
     if lang == "en":
-        nlp = spacy.load('en_core_web_sm')
+        doc = nlp_english(sentence)
     else:
-        nlp = spacy.load('es_core_news_sm')
-    doc = nlp(sentence)
+        doc = nlp_spanish(sentence)
+
     lemmatized = [w.lemma_ for w in doc]
+
+    end_time = datetime.datetime.now()
+    time_diff = (end_time - start_time)
+    execution_time = time_diff.total_seconds() * 1000
+    print("execution time in lemma",execution_time, "ms")
     return lemmatized
 
 if __name__ == '__main__':

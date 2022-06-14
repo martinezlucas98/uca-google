@@ -1,5 +1,6 @@
 from langdetect import detect, DetectorFactory, detect_langs
 from langdetect.lang_detect_exception import LangDetectException
+import datetime
 
 DetectorFactory.seed = 0 # To enforce consistent results ( https://pypi.org/project/langdetect/ )
 
@@ -26,14 +27,25 @@ def language_detect(sentence: str)-> str:
 
 
 def language_detect_2(sentence: str) -> str:
+    start_time = datetime.datetime.now()
+
+
     try:
-        if detect(sentence) != "en":
+        lang = detect(sentence)
+        end_time = datetime.datetime.now()
+        time_diff = (end_time - start_time)
+        execution_time = time_diff.total_seconds() * 1000
+        print("execution time in lang_detect_2", execution_time, "ms")
+        if lang != "en":
+            
             return "es"
     except LangDetectException: 
         # retorna un unknow cuando hay un error ya se le paso un url, numeros o no palabras
         # y por eso no detecto nada
         return "unknow"
     return "en"
+
+    
     
 
 if __name__ == '__main__':
