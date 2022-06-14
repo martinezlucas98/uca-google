@@ -69,7 +69,7 @@ def search(argv):
     indexes = get_request(PATH_INDEX, "st?q=", "+".join(query_tokens))
     results = None
     # si el inidice no esta vacio signfica que hay resultados a rankear
-    if (indexes):              
+    if (len(indexes['pages'].keys())):
         # obj = PageRank(indexes)
         # obj = TfIdf(indexes)
         obj = BM25(indexes)
