@@ -2,6 +2,22 @@ import math
 import numpy as np
 
 class TfIdf:
+    """
+        Implementacion del modelo matematico TF-IDF (term frecuency and inverse document frequency),
+        para medir la importancia de un documento/pagina.
+
+        *Artibutos:
+            @tokens: dict{'token':{'page_id1': int, 'page2':int,...}, ...}
+                por cada token se identifica las paginas en las que aperece, y cada pagina tiene
+                asociado un valor entero que es frecuencia en la que aparece en una pagina.
+            @pages: dict{'page_id':{'url':str, 'title':str, 'description':str, 'content':str},...}
+                contiene el total de paginas donde aparecen los tokens,
+                donde cada id del diccionario representa otro dict que contiene la informacion de
+                la pagina.
+            @indexes_tf_idf: list[tuple(int,float),...]
+                contiene una lista de tuplas, list[(page_id1, score1), (page_id2, score2), ...], donde
+                page_id es el identificador asociada a su score.
+    """  
     def __init__(self, indexes):
         self.__tokens = indexes['tokens']
         self.__pages = indexes['pages']

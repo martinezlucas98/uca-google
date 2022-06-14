@@ -3,36 +3,28 @@ import numpy as np
 import random
 from copy import deepcopy
 
-def get_next_page_prob(indexes_pages, current_page):
-    """
-        Retorna una distribución de probabilidad sobre qué página visitar a continuación,
-        a partir de la pagina actual, donde el key es la pagina y el valor es la probabilidad
-        de que sea la siguiente pagina a visitar.
-    """
-    # calculamos la prob. de visitar cualquier otra pagina aleatoria, si la pagina actual no tiene
-    # links a otras paginas directamente sabemos que se visitara cualquier otra pagina en caso contrario
-    # debemos saber que tan probable es visitar una pagina mediante links enlazados o ir directamente
-    # a otra pagina (sin links).
-    probability = {}
-    if len(indexes_pages[current_page]['links']) == 0:
-        #si no tenemos ningun otro link se visita cualquier otra pagina
-        prob_page = 1/len(indexes_pages.keys())
-    else:
-        #prob. de cuando se visita directamente otra pagina (sin los links)
-        prob_page = (1-DAMPING_FACTOR)/len(indexes_pages.keys())
-        #prob. de seguir visitando paginas mediante los links
-        prob_link = DAMPING_FACTOR/len(indexes_pages[current_page]['links'])
-
-    #cargamos una distribucion de posibilidades de que pagina visitar de todas las posibles        
-    for page in indexes_pages.keys():
-        if page in indexes_pages[current_page]['links']:
-            probability[page] = prob_page + prob_link
-        else:
-            probability[page] = prob_page
-                                                
-    return probability
-
 class PageRank:
+    """
+        Algoritmo inicial del PageRank para medir la relevancia de cada pagina, utiliza como
+        metrica solo los backlinks entre las paginas.
+
+        *Artibutos:
+            @pages: dict{'page_id':{'url':str, 'title':str, 'description':str, 'content':str},...}
+                contiene el total de paginas donde aparecen los tokens,
+                donde cada id del diccionario representa otro dict que contiene la informacion de
+                la pagina.
+            @indexes_pageRank: dict{'url':{'links':[str], 'id' : int,'score': float}, }
+                Cada diccionario en el dict representa una pagina, y cada elemento
+                del diccionario representa el contenido de la pagina con sus links a otra pagina
+                perteneciente a pages, id su identificador y score su puntuacion.
+            @damping_factor: float
+                constante de amortiguacion libre de pageRank.
+            @iteration: int
+                el numero de iteraciones maximos.
+            @tol: float
+                la tolerancia para saber la convergencia de las puntuaciones de las paginas.
+
+    """  
     def __init__(self, indexes, d=0.85, tol=0.001, it = 1):
         self.__pages = indexes['pages']
         self.__indexes_pageRank = {}

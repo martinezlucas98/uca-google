@@ -84,7 +84,7 @@ def search(argv):
     return json.dumps(results)
 
 if __name__ == "__main__":
-    sentence = "que se estudia en la carrera de ingenieria en informatica?"
+    sentence = "ingenieria en informatica"
     results = search(sentence)
     results = json.loads(results)
     print(f"\tSearch:  {sentence}\n")
