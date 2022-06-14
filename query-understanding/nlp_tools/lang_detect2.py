@@ -19,13 +19,16 @@ def detect_lang_googletrans(sentence: str) -> str:
      -> 'es'
     """
     translator = Translator()                               #First, initialize the class translator
+    
     lang = translator.detect(sentence)                      #Detect the language of the statement
+    print("aqui hay un bug")
     if lang.lang == 'es' :                                     
         result ='es'                                        #Store the resulting language. If is english store 'en' or if is Spanish 'es'
     elif lang.lang == 'en':                                         
         result = 'en'                                       #If the language detected if another, we store as 'other'
     else:                                                   
         result = 'other'
+    
     return result
 
 def detect_lang_langdetect(sentence: str) -> str:
@@ -90,6 +93,7 @@ def language_detect2(sentence: str) -> str:
     sentence = re.sub(r'[^\w\s]','',sentence)                                           #Remove non-letter characters
     result_detectlang = detect_lang_langdetect(sentence)                                #First, call the function langdetect
     try:
+        
         result_lang_google = detect_lang_googletrans(sentence)                          #Call the function googletrans
         result_lang_stopw = detect_lang_swnltk(sentence)                                #Call the funcition stopwords nltk
         if result_lang_google == result_lang_stopw:                                     #If the results are equal, then store that language
