@@ -17,13 +17,6 @@ from bs4 import BeautifulSoup
 
 import settings
 
-
-# def page_count(page):
-#     '''Auxiliary function for sorting pages in the index
-    
-#     Usage: page.sort(key=page_count)'''
-#     return page['count']
-
 class GPP_Index:
     '''Index object with an actual dictionary as the centerpiece and additional methods for building it.
     
@@ -67,10 +60,20 @@ class GPP_Index:
         '''Removes all entries associated with a url. May leave empty tokens on the index, call strip() to remove them'''
         try:
             page_id = self.url_to_id[url]
-            self.pages.pop(page_id)
-            
             for token, page in [(token, page) for token in self.index for page in self.index[token] if page == page_id]:
                 self.index[token].pop(page)
+            
+            self.pages.pop(page_id)
+        except KeyError:
+            return
+    
+    def del_page(self, page_id: int):
+        '''Removes all entries associated with a page. May leave empty tokens on the index, call strip() to remove them'''
+        try:
+            for token, page in [(token, page) for token in self.index for page in self.index[token] if page == page_id]:
+                self.index[token].pop(page)
+            
+            self.pages.pop(page_id)
         except KeyError:
             return
     
@@ -99,13 +102,6 @@ class GPP_Index:
             pickle.dump(self.index, file)
         with open(pages_filename, 'wb') as file:
             pickle.dump(self.pages, file)
-
-    # def sort(self):
-    #     '''Sort pages associated with words by count, and words themselves alphabetically.'''
-    #     for token, page in self.index.items():
-    #         page.sort(key=page_count, reverse=True)
-    #     # convert dict to list of (token, pages) tuples, sort (this will use token), and convert back to dict before returning
-    #     self.index = dict(sorted(list(self.index.items())))
     
     def strip(self):
         '''Removes words without entries.'''
@@ -243,8 +239,9 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
     # Index will save after each file processed
     # This process needs to be safe, so in case a SIGTERM is received the index is not corrupted
     try:
-        print("Indexer running, Ctrl+C to interrupt")
-        print(f"Scanning {scraped_files_dir}, saving index every {interval} seconds")
+        if test_dir is None:
+            print("Indexer running, Ctrl+C to interrupt")
+            print(f"Scanning {scraped_files_dir}, saving index every {interval} seconds")
         while True: # I want a DO WHILE style of loop, i.e. run at least once
         # DO
             # scan files in scraped_files_dir
