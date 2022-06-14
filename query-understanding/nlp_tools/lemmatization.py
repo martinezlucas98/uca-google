@@ -3,7 +3,7 @@ import datetime
 
 
 nlp_english = spacy.load('en_core_web_sm')
-nlp_spanish = spacy.load('en_core_web_sm')
+nlp_spanish = spacy.load('es_core_news_sm')
 
 def lemmatizer(words: list, lang='es')-> list:
     """Give a list of words 
@@ -33,4 +33,4 @@ def lemmatizer(words: list, lang='es')-> list:
     return lemmatized
 
 if __name__ == '__main__':
-    print(lemmatizer(['doing','tarea', 'hablamos'], 'en' ))
+    print(lemmatizer(['doing','tarea', 'hablamos'], 'es' ))
