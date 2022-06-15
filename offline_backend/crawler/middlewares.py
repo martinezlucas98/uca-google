@@ -76,15 +76,12 @@ class CrawlerDownloaderMiddleware:
             if err.code == 500:
                 print('Esperando 5 seg')
                 time.sleep(3600)
-            else:
-                raise
         
 
     def process_request(self, request, spider):
         # Called for each request that goes through the downloader
         # middleware.
         # Must either:
-        print('KDFJKDSBGBDSJKFSBDKBK')
         self.comprueba(request)
         # - return None: continue processing this request
         # - or return a Response object
