@@ -19,7 +19,7 @@ class CrawlerPipeline:
 
         hash = hashlib.md5(url).hexdigest()
        
-        with open(os.getcwd() + '/spiders/uc_data/uc_' + hash + '.json', "w") as file:
-            json.dump(dict(item), file, indent = 4)
-            file.close
+        file = open(os.getcwd() + '/spiders/uc_data/uc_' + hash + '.json', "w+")
+        json.dump(dict(item), file, indent = 4)
+        file.close
 

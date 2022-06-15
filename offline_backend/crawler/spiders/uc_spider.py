@@ -1,4 +1,5 @@
 import hashlib
+from urllib import response
 import scrapy
 import os
 from scrapy.spiders import CrawlSpider, Rule
@@ -8,11 +9,12 @@ from scrapy.linkextractors import LinkExtractor
 
 class UcSpiderSpider(CrawlSpider):
     name = 'uc_spider'
-    allowed_domains = ['universidadcatolica.edu.py']
-    start_urls = ['https://www.universidadcatolica.edu.py/']
-    extractor = LinkExtractor(allow_domains = 'universidadcatolica.edu.py')
+    allowed_domains = ['www.universidadcatolica.edu.py']
+    start_urls = ['http://www.universidadcatolica.edu.py']
+    handle_httpstatus_list = [500]
+    extractor = LinkExtractor(allow_domains = 'www.universidadcatolica.edu.py')
     rules = (
-        Rule(link_extractor = extractor , callback='parse_item', follow=True), 
+        Rule(link_extractor = extractor , callback='parse_item', errback='error_handler' , follow=True), 
         #se define al metodo "parse_item" como callback del link extractor
     )
 
@@ -22,9 +24,11 @@ class UcSpiderSpider(CrawlSpider):
         loader.add_value('url_self', response.url)
         loader.add_value('url_html', response.text)
         loader.add_value('url_links', 
-        self.list_to_dict(url_list = self.extractor.extract_links(response) ) 
-            )
+        self.list_to_dict(url_list = self.extractor.extract_links(response) ) )
         return loader.load_item() # se retorna el item cargado de datos para procesar en pipelines.py
+
+    def error_handler(self, failure):
+        self.log('Error de tipo ' + str(failure.value))
 
     def list_to_dict(self, url_list): # se retorna una lista de diccionarios cuyo contenido es el enlace "url"
         url_list_dict = []            # la direccion de un archivo json que corresponde a los datos de esa url "path"
