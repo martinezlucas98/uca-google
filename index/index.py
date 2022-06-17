@@ -166,6 +166,9 @@ class GPP_Index:
             'description': description,
             # links like '/wp...' or '#' get ignored
             'links': [link for link in links if link.startswith('http')],
+            # This content item contains a lot of text, used for scoring pages.
+            # The computation is done at run time in online serving, but it could
+            # be done at index time
             'content': page_text
         }
         self.url_to_id[url] = page_id
@@ -221,6 +224,9 @@ def run_indexer(run_forever: bool = False, interval: float = 0, silent: bool = F
     
     index = GPP_Index(dev_index_obj)
 
+    # Saves index to disc safely, not overwriting until the file is complete in case the process dies
+    # to avoid corrupting the indices
+    # Could be improved with https://github.com/google/leveldb
     def save_index(msg):
         if msg is not None and msg != '':
             index.dump(dev_index_obj + '~', self_only=True)
