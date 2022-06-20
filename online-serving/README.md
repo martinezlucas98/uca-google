@@ -98,3 +98,46 @@ INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 
 ```
+
+## Testing
+
+### Commands
+| Command       | Description |
+| ------------- | ------------- |
+| ```python -m unittest -v service_test.ServiceTest```  | checks if the index and query compression services have been executed correctly.  |
+| ```python -m unittest -v service_test.SearchTest```  | checks if the different search cases work correctly.  |
+| ```python -m unittest -v service_test.OnlineServingTest```  | check if our request service works correctly with the different cases. |
+| ```python service_test.py```  | run all of the above  |
+### Console Search 
+you can get the search results of the different search algorithms from the console with the search.py script
+```python search.py [-a] <bm25|pgrk|tfidf> [-s] <str1+st2+strN> [-r] <n-pages>``` 
+**Options:**
+**[-a], [--algorithm]**
+type of search algorithm
+**values=bm25|pgrk|tfidf**
+bm25: bm25 algorithm
+pgrk: PageRank algorithm
+tfidf: tf-idf algorithm
+**[-s] <str1+st2+strN>**
+search sentence
+**values=str1+st2+strN**
+str: strings
++: separator (is replaced by spaces)
+**[-r] <n-pages>**
+ranking pages
+n-pages: number of pages to display
+
+**Examples:**
+shows the top-10 of the search results with the pageRank algorithm with the sentence "deportes"
+```bash
+python search.py -a pgrk -s deportes -r 10
+```
+shows the top-5 of the search results with the bm25 algorithm with the sentence "uca university"
+```bash
+python search.py -a bm25 -s uca+university -r 5
+```
+
+shows the top-3 of the search results with the tf-idf algorithm with the sentence "becas de ayuda"
+```bash
+python search.py -a tfidf -s becas+de+ayuda -r 3
+```
