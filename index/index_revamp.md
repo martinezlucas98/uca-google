@@ -20,7 +20,7 @@ Online Serving can then evaluate the text and the token referencing it in the in
 A more impactful solution for problem 1. is keeping index files in memory. If the file sizes are to be made smaller, this is the option that makes the most sense, and cuts down on file I/O. The return format can also be changed: before, the server only worked with json, but it could also return serialized or compressed data just as well.
 
 For the indexing process, problem 3., which is offline but still too slow to be viable, saving data repeatedly was the culprit. Instead of saving the index after every page added, the indexer will only save once in a while, a parameter the user can set. This means a lot of pages can be processed before having to save. \
-Another option is to use an append=only data structure, so only the changes need to be written to disc and not the entire index, but this was not implemented.
+Another option is to use an append-only data structure, so only the changes need to be written to disc and not the entire index, but this was not implemented.
 
 ## Specifications
 
