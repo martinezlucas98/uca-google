@@ -86,20 +86,21 @@ class TfIdf:
             @results: list[dict{'url':str, 'title':str, 'description':str}]
                 Cada diccionario en la lista representa una pagina, y cada elemento
                 del diccionario representa el contenido de la pagina.
-        """
+        """     
         results = []
         # cada item es una tupla (page_id, score)
         for item in self.__indexes_tf_idf:
             page_id = item[0]
-            description = self.__pages[page_id]['content']
-            description = description[:300]         
+            # des_len = int(20 * len(self.__pages[page_id]['content'])/100)
+            description = " ".join(self.__pages[page_id]['content'])
+            description = description[:300]
             results.append(
                 {
                     "url": self.__pages[page_id]['url'],
                     "title": self.__pages[page_id]['title'],
                     "description": description
                 }
-            )
+            )            
         return results
 
     def sort(self):
