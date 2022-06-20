@@ -3,7 +3,7 @@ import unittest
 import requests
 import json
 
-from search_modules.pageRank import PageRank
+from search_modules.pageRank import GraphPageRank
 from search_modules.tf_idf import TfIdf
 from search_modules.bm25 import BM25
 from settings import PATH_INDEX, PATH_QUERY, PATH_ONLINE
@@ -59,18 +59,16 @@ class SearchTest(unittest.TestCase):
         """
         Test de la puntuacion del algoritmo pageRank sea correcto        
         """
-        indexes = requests.get(PATH_INDEX + "st?q=test").json()
+        indexes = requests.get(PATH_INDEX + "st?q=pasantia+uca").json()
         # se instancia y se puntua.
-        page_rank = PageRank(indexes)
-        page_rank.rank_pages()
-        rank = page_rank.get_indexes_pageRank()
-
+        page_rank = GraphPageRank()
+        page_rank.init(indexes['pages'])
+        page_rank.pagerank()
+        pages = page_rank.nodes
         # se debe cumplir que la suma de todas puntuacion sea igual a uno.
         count = 0.0
-        pages = indexes['pages']
-        for page_id in pages:
-            url = pages[page_id]['url']
-            count += rank[url]['score']
+        for page in pages:
+            count += pages[page]['score']
         count = round(count)
         #verificamos
         self.assertEqual(
@@ -169,6 +167,7 @@ class OnlineServingTest(unittest.TestCase):
             first = r['status'] == "notfound", 
             second= True
         )
+
 
 if __name__ == "__main__":
     # print('test_pruebas')

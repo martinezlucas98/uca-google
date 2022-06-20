@@ -1,148 +1,178 @@
 
-import numpy as np
-import random
-from copy import deepcopy
+"""
+*todo:
+    @init(self, pages)
+        En cada busqueda se debe generar los backlinks correctos para cada nodo,
+        una optimizacion seria evitar esto ya sea busquedas semejantes en memoria, disco, etc.
+        Actualmente se utiliza la interseccion de conjuntos de links de una pagina (page_link) con el total
+        de links posibles para saber cuales descartar (total_link). 
+        - Complejidad: O(len(page_link) + len(total_link))
+    
+    @pagerank(self)
+        Ejecuta el algoritmo con todos los metodos, en general el algoritmo inicial PageRank solo utiliza
+        como metrica los backlinks entre cada pagina o nodo en nuestro caso, se podria agregar al peso como
+        metrica de acuerdo al contenido de las paginas y mejorar la precision de la palabra a buscar.
+        - Complejidad: O(I*N*(N-1)) 
+        I es el numero de iteraciones (por defecto 1000 un valor muy grande, ya que se verifica la convergencia)
+        N el numero de nodos
+        N-1 es el numero de nodos padres de un nodo (en el peor de los casos todos los nodos estan conectados con todos N-1)
+"""
 
-class PageRank:
+import numpy as np
+class GraphPageRank:
     """
         Algoritmo inicial del PageRank para medir la relevancia de cada pagina, utiliza como
         metrica solo los backlinks entre las paginas.
 
         *Artibutos:
+            @nodes: dict{'url':{'children':[str], 'parents':[str], 'id' : int, 'score': float}, }
+                Cada diccionario en el dict representa una pagina, y cada elemento
+                del diccionario representa el contenido de la pagina con sus backlinks(children) a otra pagina, 
+                parents las paginas que saltan a la pagina actual (el key url) y id su identificador y score su puntuacion.
+            @damping_factor: float
+                constante de amortiguacion libre de pageRank.
+            @iteration: int
+                el numero de iteraciones maximos, por defecto es 1000 que es una canitdad muy grande para el algoritmo pageRank
+            @tol: float
+                la tolerancia para saber la convergencia de las puntuaciones de las paginas.
+    """
+    def __init__(self, d=0.15, tol=0.001, it=1000):
+        self.nodes = dict()
+        self.__damping_factor = d
+        self.__tol = tol
+        self.__iteration = it
+
+    def init(self, pages):
+        """
+        *Description:
+            Se calcula los backlinks correctos de cada pagina y la agregamos la estructura de datos
+            correspondiente a cada nodo.
+            nodes: dict{'url':{'children':[str], 'parents':[str], 'id' : int, 'score': float}, }
+        *Parameters
             @pages: dict{'page_id':{'url':str, 'title':str, 'description':str, 'content':str},...}
                 contiene el total de paginas donde aparecen los tokens,
                 donde cada id del diccionario representa otro dict que contiene la informacion de
                 la pagina.
-            @indexes_pageRank: dict{'url':{'links':[str], 'id' : int,'score': float}, }
-                Cada diccionario en el dict representa una pagina, y cada elemento
-                del diccionario representa el contenido de la pagina con sus links a otra pagina
-                perteneciente a pages, id su identificador y score su puntuacion.
-            @damping_factor: float
-                constante de amortiguacion libre de pageRank.
-            @iteration: int
-                el numero de iteraciones maximos.
-            @tol: float
-                la tolerancia para saber la convergencia de las puntuaciones de las paginas.
+        *Returns
+            None
+        """
+        # cada pagina 'url' sera un nodo
+        for page_id in pages:
+            page = pages[page_id]['url']
+            self.nodes[page] = {'children': set(pages[page_id]['links']), 'parents': [], 'id': page_id, 'score': 1.0}
 
-    """  
-    def __init__(self, indexes, d=0.85, tol=0.001, it = 1):
-        self.__pages = indexes['pages']
-        self.__indexes_pageRank = {}
-        self.__damping_factor = d
-        self.__tol = tol
-        self.__iteration = it        
-        self.__generate_pages(indexes['tokens'])
+        # generamos los backlinks de cada nodo
+        for page in self.nodes.keys():
+            # la interseccion de ambos conjuntos son los backlinks (children) correctos para cada nodo
+            backlinks = self.nodes.keys() & self.nodes[page]['children']
+            self.nodes[page]['children'] = list(backlinks)
+            # con los nuevos hijos actualizamos los padres correspondientes
+            for link in backlinks:
+                #self.nodes[link]['parents'].add(page)
+                self.nodes[link]['parents'].append(page)
     
-    def get_indexes_pageRank(self):
-        """
-            Metodo get, solo para el test.
-        """
-        return self.__indexes_pageRank
-
-    def __generate_pages(self, tokens):
+    def update_score(self, page):
         """
         *Description:
-            Se calcula los backlinks correctos de cada pagina y la agregamos a nuestra estructura
-            de dato para el rankeo.
-        *Parameters
-            @tokens: str
-                Los tokens de la palabra tokenizada, ej: 'La universidad catolica' -> ['universi', 'catolic']
-        *Returns
-            @results: dict{'url1':{'links':list[], 'id':int, 'score':float}}
-                Cada diccionario en el dict representa una pagina, y cada elemento
-                del diccionario representa el contenido de la pagina para la puntuacion correcta.
-        """    
-        for token in tokens:
-            for page_id in tokens[token]:
-                try:
-                    page_url = self.__pages[page_id]['url']
-                except Exception as err:
-                    continue
-                self.__indexes_pageRank [page_url] = {'links':[], 'id' : page_id,'score': 1.0}
-                # self.__indexes_pageRank [page_url] = {'links':self.__pages[page_id]['links'], 'id' : page_id,'score': 1.0}
-        
-        for page in self.__indexes_pageRank:
-            for page_id in self.__pages:
-                if (self.__indexes_pageRank[page]['id'] != page_id):
-                    if(page in self.__pages[page_id]['links']):
-                        page_url = self.__pages[page_id]['url']
-                        index_url = self.__indexes_pageRank[page_url]
-                        index_url['links'].append(page)                    
-        
+            Actualiza la puntuacion de una pagina, la puntuacion nueva sera la probabilidad
+            de quedarse o no en la pagina actual.
+        *Parameters:
+            @page: str
+                la url o nombre de la pagina a actualizar.
+        *Returns:
+            None
+        """
+        # cada nodo padre del nodo page es su vecino, por lo que actualizamos la 
+        # probabilidad de visitar uno de sus hijos (el node page es uno de ellos).
+        score_sum = 0.0
+        for parent in self.nodes[page]['parents']:
+            score_sum += self.nodes[parent]['score'] / len(self.nodes[parent]['children'])
+        # luego actualizamos la probabilidad de salir de nuestra pag. actual
+        pagerank = self.__damping_factor / len(self.nodes) + (1-self.__damping_factor) * score_sum
+        # actualizamos la puntuacion
+        self.nodes[page]['score'] = pagerank
+
+    def normalize_pagerank(self):
+        """
+        *Description:
+            actualizamos las punturaciones de cada pagina, donde en cada normalizacion
+            puntuamos que tan probable es visitar una pagina "x", mediante mas alto sea
+            la probabilidad es mejor, luego se chequea si con la nueva actualizacion de 
+            puntuaciones hubo convergencia.
+        *Parameters:
+            @self
+        *Returns:
+            @boolean
+            True si la puntuacion convergen false en caso contrario
+        """
+        # sumamos el total de puntuaciones
+        score_sum = sum(self.nodes[page]['score'] for page in self.nodes)
+        # normalizamos la puntuacion de cada pagina, si converge quiere decir
+        # que pagerank_sum = 1.0 para la tolerancia aplicada (por defecto tol=0.001)
+        conv_total = 0
+        for page in self.nodes:
+            prev_score = self.nodes[page]['score']
+            self.nodes[page]['score'] /= score_sum
+            # verficamos la convergencia
+            if abs(prev_score - self.nodes[page]['score']) < self.__tol:
+                conv_total +=1
+        # verificamos is todas las pagina convergen
+        return conv_total == len(self.nodes.keys())
+                
     def sort(self):
         """
             Ordena el contenido el resultado por relevancia, en orden decreciente.
         """
-        self.__indexes_pageRank = dict(sorted(self.__indexes_pageRank.items(), key=lambda x: x[1]['score'], reverse=True))
-
-    def get_results(self):
+        self.nodes = dict(sorted(self.nodes.items(), key=lambda x: x[1]['score'], reverse=True))
+    
+    def pagerank(self):
         """
         *Description:
-            Se obtiene el resultado actual de __indexes_pageRank con los datos de 
-            url, title y descripcion de cada pagina.
-        *Parameters
+            En cada iteracion actualizamos o normalizamos las puntuaciones de cada nodo hasta
+            que convergan o hasta que se cumpla las "n" iteraciones.
+        *Parameters:
             @self
+        *Returns:
+            None
+        """
+        # por defecto iteration = 1000 que es una cantidad muy grande para el algoritmo pageRank
+        for i in range(self.__iteration):
+            for page in self.nodes:
+                self.update_score(page)
+            # actualizamos la puntuacion de todas las paginas y verificamos la convergencia
+            is_convergent = self.normalize_pagerank()
+            if is_convergent:
+                break
+    
+    def get_results (self, pages):
+        """
+        *Description:
+            Se obtiene el resultado url, title y descripcion de cada pagina, de acuerdo al ordenamiento
+            de los nodos.
+        *Parameters
+            @pages: dict{'page_id':{'url':str, 'title':str, 'description':str, 'content':str},...}
+                contiene el total de paginas donde aparecen los tokens,
+                donde cada id del diccionario representa otro dict que contiene la informacion de
+                la pagina.
         *Returns
             @results: list[dict{'url':str, 'title':str, 'description':str}]
                 Cada diccionario en la lista representa una pagina, y cada elemento
                 del diccionario representa el contenido de la pagina.
-        """ 
+        """     
         results = []
-        for page in self.__indexes_pageRank:
-            page_id = self.__indexes_pageRank[page]['id']
-            description = self.__pages[page_id]['content']
-            description = description[:300]
-            result = {
-                'url': page,
-                'title': self.__pages[page_id]['title'],
-                'description': description, 
-            }
-            results.append(result)
-        
+        # cada nodo es un dict{'url':{'children':[str], 'parents':[str], 'id' : int, 'score': float}, }
+        for page in self.nodes:
+            # el id de la pagina que contiene toda la informacion de la pagina
+            page_id = self.nodes[page]['id']
+            description = pages[page_id]['content']
+            description = description[:300]      
+            results.append(
+                {
+                    "url": pages[page_id]['url'],
+                    "title": pages[page_id]['title'],
+                    "description": description
+                }
+            )
         return results
 
-    def rank_pages(self):
-        """
-            Damos un puntaje a cada pagina con el algoritmo pageRank, para poder medir la relevancia
-            de cada pagina, se puntua hasta la convergencia o hasta llegar el limite de iteraciones.
-        """
-                
-        # la puntuacion actual de las paginas, ej: 'url1':{'links':[...], 'id' : 1,'score': 0.4567}, ...
-        for page in self.__indexes_pageRank.keys():            
-            self.__indexes_pageRank [page]['score'] /= len(self.__indexes_pageRank.keys())
-                    
-        #puntuacion actual para verficar la convergencia del pageRank        
-        prev_rank = deepcopy(self.__indexes_pageRank)
-
-        # numero de paginas que convergen
-        conv_total = 0
-        # contador de la iteracion
-        it = 0
-        while (conv_total != len(self.__indexes_pageRank.keys()) and it < self.__iteration):
-            # cada current_page es el identificador de la pagina actual, ej: 12,33,1, etc
-            for current_page in self.__indexes_pageRank.keys():                        
-                prob = 0
-                # cada page, es la url de la pagina
-                for page in self.__indexes_pageRank.keys():
-                    # se obtiene todos los links vinculados de la pagina
-                    page_links = self.__indexes_pageRank[page]['links']
-                    # si no hay backlinks agregamos todas las paginas que tenemos
-                    if len(page_links) == 0:
-                        page_links = self.__indexes_pageRank.keys()
-                    # la probabilidad de salir de nuestra pag. actual
-                    if current_page in page_links:                                                
-                        prob += prev_rank[page]['score']/len(page_links)
-                # aplicamos la formula matematica del pageRank y actualizamos la puntuacion de la pagina actual
-                prob = (1 - self.__damping_factor) / len(self.__indexes_pageRank.keys()) + self.__damping_factor * prob                
-                self.__indexes_pageRank[current_page]['score'] = prob
-            #verificamos si las puntuaciones de las paginas convergen
-            conv_total = 0            
-            for page in prev_rank.keys():
-                rank = abs(prev_rank[page]['score'] - self.__indexes_pageRank[page]['score'])                
-                if rank < self.__tol:
-                    conv_total += 1
-                else:
-                    break         
-            #cargamos las punturacion actuales para seguir con la convergencia            
-            prev_rank = deepcopy(self.__indexes_pageRank)         
-            it += 1
+        
