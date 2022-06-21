@@ -111,6 +111,7 @@ INFO:     Application startup complete.
 ### Console Search 
 you can get the search results of the different search algorithms from the console with the search.py script
 ```python search.py [-a] <bm25|pgrk|tfidf> [-s] <str1+st2+strN> [-r] <n-pages>``` 
+
 **Options:**
 **[-a], [--algorithm]**
 type of search algorithm
@@ -118,11 +119,13 @@ type of search algorithm
 bm25: bm25 algorithm
 pgrk: PageRank algorithm
 tfidf: tf-idf algorithm
+
 **[-s] <str1+st2+strN>**
 search sentence
 **values=str1+st2+strN**
 str: strings
 +: separator (is replaced by spaces)
+
 **[-r] <n-pages>**
 ranking pages
 n-pages: number of pages to display
