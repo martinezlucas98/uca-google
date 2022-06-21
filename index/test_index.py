@@ -16,21 +16,20 @@ class IndexTest(unittest.TestCase):
     
     def test_add_entry(self):
         gppi = GPP_Index()
-        gppi.add_entry('test', 'http://www.test.com', 1, self.time, [], 'Test', 'test test')
-        entry = {'url': 'http://www.test.com', 'count': 1, 'date': self.time, 'title': 'Test', 'description': 'test test', 'links': []}
-        self.assertEqual(gppi.index['test'][0], entry)
+        gppi.add_entry('test', 123, 456)
+        self.assertEqual(gppi.index['test'][123], 456)
     
     def test_del_page(self):
         gppi = GPP_Index()
-        gppi.add_entry('test', 'http://www.test.com', 1, self.time, [], 'Test', 'test test')
-        gppi.add_entry('tests', 'http://www.test.com', 2, self.time, [], 'Tests', 'tests tests')
-        gppi.add_entry('tester', 'http://www.tester.com', 1, self.time, [], 'Tester', 'tester tester')
-        gppi.del_page('http://www.test.com')
-        self.assertEqual(len([word for word in gppi.index if gppi.index[word] != []]), 1)
+        gppi.add_entry('test', 1, 1)
+        gppi.add_entry('tests', 1, 2)
+        gppi.add_entry('tester', 2, 1)
+        gppi.del_page(1)
+        self.assertEqual(len([word for word in gppi.index if len(gppi.index[word]) != 0]), 1)
     
     def test_dump_index(self):
         gppi = GPP_Index()
-        gppi.add_entry('test', 'http://www.test.com', 1, self.time, [], 'Test', 'test test')
+        gppi.add_entry('test', 123, 456)
         tmp_fn = '.' + str(self.time) + '.tmp'
         gppi.dump_index(tmp_fn)
         with open(tmp_fn, 'rb') as file:
@@ -40,23 +39,16 @@ class IndexTest(unittest.TestCase):
     
     def test_dump_object(self):
         gppi = GPP_Index()
-        gppi.add_entry('test', 'http://www.test.com', 1, self.time, [], 'Test', 'test test')
+        gppi.add_entry('test', 123, 456)
         tmp_fn = '.' + str(self.time) + '.tmp'
         gppi.dump(tmp_fn, True)
         gppi_dupe = GPP_Index(tmp_fn)
         os.remove(tmp_fn)
         self.assertEqual(gppi.index, gppi_dupe.index)
     
-    def test_sort(self):
-        gppi = GPP_Index()
-        gppi.add_entry('test', 'http://www.test.com', 1, self.time, [], 'Test', 'test test')
-        gppi.add_entry('test', 'http://www.tester.com', 2, self.time, [], 'Tester', 'tester tester')
-        gppi.sort()
-        self.assertGreater(gppi.index['test'][0]['count'], gppi.index['test'][1]['count'])
-    
     def test_strip(self):
         gppi = GPP_Index()
-        gppi.add_entry('test', 'http://www.test.com', 1, self.time, [], 'Test', 'test test')
+        gppi.add_entry('test', 123, 456)
         gppi.index['tester'] = []
         gppi.strip()
         self.assertEqual(len(gppi.index), 1)
@@ -116,6 +108,7 @@ class IndexTest(unittest.TestCase):
         os.remove(tmp_dn + '/' + tmp_fn)
         os.remove(tmp_dn + '/test_dev_index.pickle')
         os.remove(tmp_dn + '/test_index.pickle')
+        os.remove(tmp_dn + '/indexed_pages.pickle')
         os.removedirs(tmp_dn)
         
         self.assertGreater(len(gppi.index), 0)
