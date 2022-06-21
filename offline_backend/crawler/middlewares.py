@@ -74,8 +74,8 @@ class CrawlerDownloaderMiddleware:
             respuesta = Requestxd.urlopen(request.url)
         except HTTPError as err:
             if err.code == 500:
-                print('Esperando 5 seg')
-                time.sleep(3600)
+                print('Esperando media hora')
+                time.sleep(1800)
         
 
     def process_request(self, request, spider):

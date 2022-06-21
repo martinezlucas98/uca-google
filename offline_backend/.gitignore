@@ -1,3 +1,4 @@
 crawler/__pycache__/
 crawler/spiders/__pycache__/
 crawler/spiders/uc_data
+crawler/crawls

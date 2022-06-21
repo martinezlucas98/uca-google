@@ -17,9 +17,7 @@ class CrawlerPipeline:
     def process_item(self, item, spider):
         
         url = item['url_self'][0].encode('utf-8')
-
         hash = hashlib.md5(url).hexdigest()
-        
         try:
             os.mkdir(os.getcwd() + '/spiders/uc_data')
         except OSError as e:
