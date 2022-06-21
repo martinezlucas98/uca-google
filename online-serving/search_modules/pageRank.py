@@ -6,16 +6,25 @@
         una optimizacion seria evitar esto ya sea busquedas semejantes en memoria, disco, etc.
         Actualmente se utiliza la interseccion de conjuntos de links de una pagina (page_link) con el total
         de links posibles para saber cuales descartar (total_link). 
-        - Complejidad: O(len(page_link) + len(total_link))
+        - Complejidad: 
+            O(n*m)+O(n*(n-m))   con n>m  (caso promedio)
+            O(n*m)+O(n2)    con  n<=m (peor de los casos)
+        En Donde:
+            n el número de páginas o nodos.
+            m el número de links de cada página o número de hijos de cada nodo.
     
     @pagerank(self)
         Ejecuta el algoritmo con todos los metodos, en general el algoritmo inicial PageRank solo utiliza
         como metrica los backlinks entre cada pagina o nodo en nuestro caso, se podria agregar al peso como
         metrica de acuerdo al contenido de las paginas y mejorar la precision de la palabra a buscar.
-        - Complejidad: O(I*N*(N-1)) 
-        I es el numero de iteraciones (por defecto 1000 un valor muy grande, ya que se verifica la convergencia)
-        N el numero de nodos
-        N-1 es el numero de nodos padres de un nodo (en el peor de los casos todos los nodos estan conectados con todos N-1)
+        - Complejidad en cada iteracion:
+            O(n)+ O(E)   (caso promedio)
+            O(n)+O(n* (n-1))  (peor de los casos)
+        Donde:
+            n el número de páginas o nodos.
+            m el número de links de cada página o número de hijos de cada nodo.
+            E el número de aristas.
+    Para mas detalle leer el doc.
 """
 
 import numpy as np

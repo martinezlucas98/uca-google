@@ -1,7 +1,7 @@
 
 """
 *todo:
-    @search(argv)
+    @search(sentence, type)
         Se encarga de ejecutar los algoritmos de busquedas, primero tokeniza la palabra en donde
         puede existir tokens con el mismo significado, una manera de reforzar las puntuaciones
         es identificar estos tokens para poder contar el numero de ocurrencia de cada tokens en
@@ -16,7 +16,7 @@
             tokens = ['inform', 'carrer', 'inform', 'electro']
             tokens = {'inform': 2, 'carrer': 1, 'electro': 1}
             Podemos observar que informacion e infomatica nos referimos a lo mismo, por lo que
-            podemos no obtener nada con relacion a electronica.
+            podemos menos informacion con relacion a electronica en los resultados ordenados.
 """
 
 # modulos del servicio
@@ -147,25 +147,32 @@ def display(sentence, type, ranking):
     *Returns
         None
     """
+    class bcolors:
+        PURPLE = '\033[95m'
+        BLUE = '\033[94m'
+        ENDC = '\033[0m'
+        BOLD = '\033[1m'
+        UNDERLINE = '\033[4m'
+        SEARCH = BOLD + PURPLE
+        RESULT = BOLD + UNDERLINE
+        
     results = search(sentence, type)
     results = json.loads(results)
-    print(f"\tSearch:  {sentence}\n")
-    print("Type:", type, '\n')
-    print(">>>RESULTS:\n")
-    print('Resultados encontrados: ', len(results['results']), 'paginas')
-    print("time:", results['time'], "\n")
+    print(f"\t{bcolors.SEARCH}Search:{sentence}\n{bcolors.ENDC}")
+    print(f"{bcolors.BLUE}About {len(results['results'])} results ({results['time']} seconds)")
+    print(f"Type: {type}{bcolors.ENDC}\n")
     if results['status'] == "success":
-        print("Las",ranking,"primeras paginas:")
+        print(f"{bcolors.BOLD}Top {ranking} pages:{bcolors.ENDC}")
         count = 0
         for item in results['results']:
-            print('\turl:', item['url'])
-            print('\ttitle:', item['title'])
-            print('\tdescription:', item['description'][:100] + "...", "\n")
+            print(f"\t{bcolors.RESULT}url:{bcolors.ENDC} {item['url']}")
+            print(f"\t{bcolors.RESULT}title:{bcolors.ENDC} {item['title']}")
+            print(f"\t{bcolors.RESULT}description:{bcolors.ENDC} {item['description'][:100]}...\n")
             count += 1
             if count == ranking:
                 break
     else:
-        print("Not found:", results['results'])
+        print(f"{bcolors.RESULT}Not found:{bcolors.ENDC} {results['results']}")
 
 if __name__ == "__main__":
     usage = "usage: %prog [-a] <bm25|pgrk|tfidf> [-s] <str1+st2+strN> [-r] <n-pages>"
