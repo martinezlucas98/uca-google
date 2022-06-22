@@ -18,7 +18,7 @@ function Show_results(props){
     setItems([...props.datox.results].splice(0,ITEMS_PER_PAGE))
   },[props.datox.results]) ;
  
-  //FUncion que se encarga cuando se presione el boton para la pagina siguiente
+  //Funcion que se encarga cuando se presione el boton para la pagina siguiente
   const nextHandler = () => {
     const totalElementos = datosFromApi.length;
     console.log(totalElementos)

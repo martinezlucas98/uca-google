@@ -7,7 +7,7 @@ import { red } from '@mui/material/colors';
 
 function Autocomplete({ arr, setSelectedOpt, focus, onClickOutside, show}){
     const ref = useRef(null)
-
+    //Usamos esta funcion handleClick para seleccionar y luego poner en el input box lo que selecciono el usuario
     function handleClick(option) {
         setSelectedOpt(option);
     }
@@ -26,7 +26,7 @@ function Autocomplete({ arr, setSelectedOpt, focus, onClickOutside, show}){
     if(!show){
         return null;
     }
-    
+    //Mostramos las opciones que retorno el autocomplete
     return(
         
         <div ref={ref} className={styles.list}>

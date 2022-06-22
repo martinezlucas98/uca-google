@@ -24,7 +24,7 @@ function Results(props){
 
                   <p className={styles.title}> {props.title}</p>
                   <p className={styles.link}> {props.link}</p>
-                  <p className={styles.description}> {truncateString(props.description, 20)}</p>
+                  <p className={styles.description}> {truncateString(props.description, 100)}</p>
                 
                 </div>
           

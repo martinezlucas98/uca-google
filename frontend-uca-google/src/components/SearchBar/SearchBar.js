@@ -10,7 +10,7 @@ import Autocomplete from './Autocomplete/Autocomplete.js'
 function SearchBar(){
 
   //La funcion handleClick() se llamara una vez que el usuario le de al boton buscar de la barra,
-  //Esta funcion nos rediccionara a otra ruta /results
+  
   const [autocompletOpts, setAutocompleteOpts] = useState([]);
 
   const [focused, setFocused] = useState(false)
@@ -22,6 +22,7 @@ function SearchBar(){
   
   
   const router = useRouter()
+  //Esta funcion nos rediccionara a otra ruta loading/results que usaremos como pagina de carga
   const handleSubmit=(e)=>{
     //console.log(value)
     e.preventDefault();
