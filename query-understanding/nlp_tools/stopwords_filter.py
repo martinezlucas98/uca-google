@@ -6,7 +6,10 @@ from nltk.corpus import stopwords
 STOPWORDS_ES = set(stopwords.words('spanish'))
 
 def remove_stopwords(words: list) -> list:
-    
+    """
+        Remove StopWords like 'the', 'he', 'she', 'de',
+        'la', 'yo' etc.
+    """
     start_time = datetime.datetime.now()
 
 

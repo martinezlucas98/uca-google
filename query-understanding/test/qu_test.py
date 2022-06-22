@@ -8,6 +8,7 @@ from nlp_tools.lemmatization import lemmatizer
 from text_normalization import stemming, tokenization, cleaning
 from nlp_tools.query_expansion import entity_recongnition, query_expansion
 import main as endpoints
+from nlp_tools.autocomplete import autocomplete_gpp
 
 
 class QueryUnderstandingTest(unittest.TestCase):
@@ -200,6 +201,21 @@ class QueryUnderstandingTest(unittest.TestCase):
                 "setenta"
             ]
         )
+
+    def test_autocomplete(self):
+        # if the argunment is an empty string
+        autocompletes_opts = autocomplete_gpp(sentence= '')
+        self.assertEqual(len(autocompletes_opts), 0)
+
+        autocompletes_opts = autocomplete_gpp(sentence= 'hola')
+        self.assertEqual(len(autocompletes_opts) > 0, True)
+
+        # For english words
+        autocompletes_opts = autocomplete_gpp(sentence= 'schedule')
+        self.assertEqual(len(autocompletes_opts) > 0, True)
+
+        self.assertEqual("scheduled time" in autocompletes_opts, True)
+
     
     
 if __name__ == '__main__':
