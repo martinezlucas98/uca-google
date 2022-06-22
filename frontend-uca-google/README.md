@@ -32,7 +32,7 @@ npm run dev
 # or
 yarn dev
 ```
-### For testing
+## For testing
 
 Install selenium:
 
@@ -46,7 +46,7 @@ Install chromedriver autoinstaller:
 pip install chromedriver-autoinstaller
 ```
 
-## To run test:
+### To run test:
 
 ```bash
 pyhton test.py
