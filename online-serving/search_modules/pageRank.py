@@ -7,12 +7,13 @@
         Actualmente se utiliza la interseccion de conjuntos de links de una pagina (page_link) con el total
         de links posibles para saber cuales descartar (total_link). 
         - Complejidad: 
-            O(n*m)+O(n*(n-m))   con n>m  (caso promedio)
-            O(n*m)+O(n2)    con  n<=m (peor de los casos)
+            O(n*m)+O(n*E)   con n>m  (caso promedio)
+            O(n*m)+O(n*(n-1))    con  n<=m (peor de los casos)
         En Donde:
             n el número de páginas o nodos.
             m el número de links de cada página o número de hijos de cada nodo.
-    
+            E el numero de aristas del nodo actual
+            
     @pagerank(self)
         Ejecuta el algoritmo con todos los metodos, en general el algoritmo inicial PageRank solo utiliza
         como metrica los backlinks entre cada pagina o nodo en nuestro caso, se podria agregar al peso como
