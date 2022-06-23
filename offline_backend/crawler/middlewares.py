@@ -3,17 +3,20 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+import urllib.request as Requestxd
+from urllib.error import HTTPError
 from scrapy import signals
+import time
 
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
+import scrapy
 
 
 class CrawlerSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
-
     @classmethod
     def from_crawler(cls, crawler):
         # This method is used by Scrapy to create your spiders.
@@ -24,7 +27,6 @@ class CrawlerSpiderMiddleware:
     def process_spider_input(self, response, spider):
         # Called for each response that goes through the spider
         # middleware and into the spider.
-
         # Should return None or raise an exception.
         return None
 
@@ -39,7 +41,6 @@ class CrawlerSpiderMiddleware:
     def process_spider_exception(self, response, exception, spider):
         # Called when a spider or process_spider_input() method
         # (from other spider middleware) raises an exception.
-
         # Should return either None or an iterable of Request or item objects.
         pass
 
@@ -68,11 +69,20 @@ class CrawlerDownloaderMiddleware:
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
+    def comprueba(self, request):
+        try:
+            respuesta = Requestxd.urlopen(request.url)
+        except HTTPError as err:
+            if err.code == 500:
+                print('Esperando media hora')
+                time.sleep(1800)
+        
+
     def process_request(self, request, spider):
         # Called for each request that goes through the downloader
         # middleware.
-
         # Must either:
+        self.comprueba(request)
         # - return None: continue processing this request
         # - or return a Response object
         # - or return a Request object
@@ -82,17 +92,23 @@ class CrawlerDownloaderMiddleware:
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
-
         # Must either;
+        """ print(spider.allowed_domains)
+        if response.status == 500:
+            print('esperando 5 segundos')
+            time.sleep(5)
+            return spider.response_anterior """
+        
+        return response
         # - return a Response object
         # - return a Request object
         # - or raise IgnoreRequest
-        return response
+        
 
     def process_exception(self, request, exception, spider):
         # Called when a download handler or a process_request()
         # (from other downloader middleware) raises an exception.
-
+        
         # Must either:
         # - return None: continue processing this exception
         # - return a Response object: stops process_exception() chain

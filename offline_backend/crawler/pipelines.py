@@ -11,15 +11,20 @@ from itemadapter import ItemAdapter
 import hashlib
 import json
 import os
+import errno
 
 class CrawlerPipeline:
     def process_item(self, item, spider):
         
         url = item['url_self'][0].encode('utf-8')
-
         hash = hashlib.md5(url).hexdigest()
-       
-        with open(os.getcwd() + '/crawler/spiders/uc_data/uc_' + hash + '.json', "w") as file:
-            json.dump(dict(item), file, indent = 4)
-            file.close
+        try:
+            os.mkdir(os.getcwd() + '/spiders/uc_data')
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                pass
+    
+        file = open(os.getcwd() + '/spiders/uc_data/uc_' + hash + '.json', "w+")
+        json.dump(dict(item), file, indent = 4)
+        file.close
 
