@@ -7,8 +7,8 @@
         Actualmente se utiliza la interseccion de conjuntos de links de una pagina (page_link) con el total
         de links posibles para saber cuales descartar (total_link). 
         - Complejidad: 
-            O(n*m)+O(n*E)   con n>m  (caso promedio)
-            O(n*m)+O(n*(n-1))    con  n<=m (peor de los casos)
+            O(n*E)   con n>m  (caso promedio)
+            O(n*m)    con  n<=m (peor de los casos)
         En Donde:
             n el número de páginas o nodos.
             m el número de links de cada página o número de hijos de cada nodo.
@@ -19,8 +19,8 @@
         como metrica los backlinks entre cada pagina o nodo en nuestro caso, se podria agregar al peso como
         metrica de acuerdo al contenido de las paginas y mejorar la precision de la palabra a buscar.
         - Complejidad en cada iteracion:
-            O(n)+ O(E)   (caso promedio)
-            O(n)+O(n* (n-1))  (peor de los casos)
+            O(n*E)   (caso promedio)
+            O(n*(n-1))  (peor de los casos)
         Donde:
             n el número de páginas o nodos.
             m el número de links de cada página o número de hijos de cada nodo.
