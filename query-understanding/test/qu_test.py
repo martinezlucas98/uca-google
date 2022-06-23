@@ -2,12 +2,13 @@ import unittest
 
 from nlp_tools.tokenizer import tokenizer
 from text_normalization import tokenization
-from nlp_tools.lang_detect import language_detect
+from nlp_tools.lang_detect2 import language_detect2
 from nlp_tools.stopwords_filter import remove_stopwords
 from nlp_tools.lemmatization import lemmatizer
 from text_normalization import stemming, tokenization, cleaning
 from nlp_tools.query_expansion import entity_recongnition, query_expansion
 import main as endpoints
+from nlp_tools.autocomplete import autocomplete_gpp
 
 
 class QueryUnderstandingTest(unittest.TestCase):
@@ -64,7 +65,10 @@ class QueryUnderstandingTest(unittest.TestCase):
             second=['12', '']
         )
         self.assertEqual(
-            first= stemming(['En', 'su', 'parte', 'de', 'arriba', 'encontramos', 'la', 'donde', 'se', 'puede', 'echar', 'el', 'detergente', 'aunque', 'en', 'nuestro', 'caso', 'lo', 'al', 'ser', 'gel', 'lo', 'ponemos', 'directamente', 'junto', 'con', 'la', 'ropa','.']),
+            first= stemming(
+                ['En', 'su', 'parte', 'de', 'arriba', 'encontramos', 'la', 'donde', 'se', 'puede', 'echar', 'el', 'detergente', 'aunque', 'en', 'nuestro', 'caso', 'lo', 'al', 'ser', 'gel', 'lo', 'ponemos', 'directamente', 'junto', 'con', 'la', 'ropa','.'],
+                lang='es'
+                ),
             second= ['En', 'su', 'part', 'de', 'arrib', 'encontr', 'la',  'dond', 'se', 'pued', 'echar', 'el', 'detergent',  'aunqu', 'en', 'nuestr', 'cas', 'lo', 'al', 'ser', 'gel', 'lo', 'pon', 'direct', 'junt', 'con', 'la', 'rop', '.']
         )
         
@@ -92,7 +96,9 @@ class QueryUnderstandingTest(unittest.TestCase):
     
     def test_lemmatization_spacy(self):
         self.assertEqual(
-            first= lemmatizer(['12','','hablando', 'jugando', 'jugar', 'comiendo', 'horarios', 'personas', 'ideas', 'cosas', 'yendo']),
+            first= lemmatizer(['12','','hablando', 'jugando', 'jugar', 'comiendo', 'horarios', 'personas', 'ideas', 'cosas', 'yendo'],
+            lang='es'
+            ),
             second= ['12',' ','hablar', 'jugar', 'jugar', 'comer', 'horario', 'persona', 'idea', 'cosa','ir']
         )
 
@@ -160,15 +166,15 @@ class QueryUnderstandingTest(unittest.TestCase):
     
     def test_language_detect(self):
         self.assertEqual(
-            language_detect('carrera de informatica'),
+            language_detect2('carrera de informatica'),
             'es'
         )
         self.assertEqual(
-            language_detect('this is a test'),
+            language_detect2('this is a test'),
             'en'
         )
 
-        
+       
     def test_endpoint_expand_query(self):
         response = endpoints.expand_query_route(q='')
         self.assertEqual(
@@ -195,6 +201,21 @@ class QueryUnderstandingTest(unittest.TestCase):
                 "setenta"
             ]
         )
+
+    def test_autocomplete(self):
+        # if the argunment is an empty string
+        autocompletes_opts = autocomplete_gpp(sentence= '')
+        self.assertEqual(len(autocompletes_opts), 0)
+
+        autocompletes_opts = autocomplete_gpp(sentence= 'hola')
+        self.assertEqual(len(autocompletes_opts) > 0, True)
+
+        # For english words
+        autocompletes_opts = autocomplete_gpp(sentence= 'schedule')
+        self.assertEqual(len(autocompletes_opts) > 0, True)
+
+        self.assertEqual("scheduled time" in autocompletes_opts, True)
+
     
     
 if __name__ == '__main__':
