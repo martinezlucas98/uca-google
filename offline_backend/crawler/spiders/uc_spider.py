@@ -13,6 +13,7 @@ class UcSpiderSpider(CrawlSpider):
     start_urls = ['http://www.universidadcatolica.edu.py']
     handle_httpstatus_list = [500]
     extractor = LinkExtractor(allow_domains = 'www.universidadcatolica.edu.py')
+    
     rules = (
         Rule(link_extractor = extractor , callback='parse_item', errback='error_handler' , follow=True), 
         #se define al metodo "parse_item" como callback del link extractor
