@@ -32,7 +32,24 @@ npm run dev
 # or
 yarn dev
 ```
+## For testing
 
+Install selenium:
 
+```bash
+pip install selenium
+```
+
+Install chromedriver autoinstaller:
+
+```bash
+pip install chromedriver-autoinstaller
+```
+
+### To run test:
+
+```bash
+pyhton test.py
+```
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 

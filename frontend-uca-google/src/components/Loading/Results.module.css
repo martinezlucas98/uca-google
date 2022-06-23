@@ -9,18 +9,25 @@
 }
 
 .title{
-  font-size: 1.3rem;
-  padding-left: 10px;
+ 
+  height: 20px;
+ 
+ 
 }
 .link{
-  font-size: 1.3rem;
-  padding-left: 10px;
+  border: 1px solid black;
+  width: 100px;
+  height: 20px;
+  background-color: gray;
+  margin: 15px 15px;
 }
 
 .description{
-  font-size: 1.1rem;
-  text-align: justify;
-  padding-left: 10px;
+  border: 1px solid black;
+  width: 500px;
+  height: 40px;
+  background-color: gray;
+  margin: 15px 15px;
 }
 
 .buttonPrev{
@@ -28,8 +35,6 @@
 }
 
 .buttons{
-  display: flex;
-  align-items: center;
   margin-left: 15px;
 
 }
@@ -38,10 +43,4 @@
   
    float: left
   
-}
-
-.pageNumber{
-  font-weight: bold;
-  margin-left: 15px;
-
 }

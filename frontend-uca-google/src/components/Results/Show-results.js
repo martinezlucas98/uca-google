@@ -18,7 +18,7 @@ function Show_results(props){
     setItems([...props.datox.results].splice(0,ITEMS_PER_PAGE))
   },[props.datox.results]) ;
  
-  //FUncion que se encarga cuando se presione el boton para la pagina siguiente
+  //Funcion que se encarga cuando se presione el boton para la pagina siguiente
   const nextHandler = () => {
     const totalElementos = datosFromApi.length;
     console.log(totalElementos)
@@ -41,6 +41,8 @@ function Show_results(props){
     setCurrentPage(prevPage)
  
   }
+
+ 
   //En el caso de que no haya ningun resultado, mostramos en pantalla "No se encontraron resultado", en caso contrario, se muestran los resultados
   if(props.datox.status === "notfound"){
     return(
@@ -56,6 +58,7 @@ function Show_results(props){
         <div className={styles.buttons}>
           <button onClick={prevHandler} className={styles.buttonPrev}> <NavigateBeforeIcon/></button>
           <button onClick={nextHandler} className={styles.buttonNext}><NavigateNextIcon/></button>
+          <span className={styles.pageNumber}>Pagina {currentPage+1}</span>
         </div>
    
       {
