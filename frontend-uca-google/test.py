@@ -13,7 +13,7 @@ from selenium.webdriver.chrome.options import Options
 import time
 
 #Esto es para saber si el driver de chrome ya esta instalado
-chromedriver_autoinstaller.install()
+# chromedriver_autoinstaller.install()
 
 driver = webdriver.Chrome()
 driver.get("http://localhost:3000/")
@@ -37,8 +37,8 @@ search_button = driver.find_element_by_xpath("//button[@type='submit']").click()
 time.sleep(5)
 
 #Cambiamos de pagina
-next_page = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='__next']/div/div[2]/div/div/button[2]")))
-next_page.click()
+next_page = driver.find_element_by_xpath("//*[@id='__next']/div/div[2]/div/div/button[2]").click()
+# next_page.click()
 
 time.sleep(2)
 prev_page = driver.find_element_by_xpath("//*[@id='__next']/div/div[2]/div/div/button[1]").click()

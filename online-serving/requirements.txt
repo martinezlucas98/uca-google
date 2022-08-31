@@ -9,7 +9,7 @@ click==8.1.3
 cymem==2.0.6
 dnspython==2.2.1
 email-validator==1.2.1
-es-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/es_core_news_sm-3.3.0/es_core_news_sm-3.3.0-py3-none-any.whl
+es-core-news-sm
 fastapi==0.78.0
 gensim==4.2.0
 h11==0.13.0
@@ -22,11 +22,11 @@ langcodes==3.3.0
 langdetect==1.0.9
 MarkupSafe==2.1.1
 mkl-fft==1.3.1
-mkl-random @ file:///tmp/build/80754af9/mkl_random_1626186066731/work
+mkl-random
 mkl-service==2.4.0
 murmurhash==1.0.7
 nltk==3.7
-numpy @ file:///opt/conda/conda-bld/numpy_and_numpy_base_1652801679809/work
+numpy
 orjson==3.6.8
 packaging==21.3
 pathy==0.6.1
@@ -42,7 +42,7 @@ regex==2022.4.24
 requests==2.27.1
 scikit-learn==1.1.1
 scipy==1.8.1
-six @ file:///tmp/build/80754af9/six_1644875935023/work
+six
 sklearn==0.0
 smart-open==5.2.1
 sniffio==1.2.0

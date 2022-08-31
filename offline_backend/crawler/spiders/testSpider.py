@@ -9,7 +9,7 @@ from crawler.items import UrlInfo
 from scrapy.loader import ItemLoader
 from scrapy.linkextractors import LinkExtractor
 from scrapy.exceptions import CloseSpider
-from spiders import uc_spider
+# from spiders import uc_spider
 
 
 class testSpider(CrawlSpider):
